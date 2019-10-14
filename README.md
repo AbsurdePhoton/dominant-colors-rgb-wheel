@@ -1,6 +1,6 @@
 # dominant-colors-rgb-wheel
 ## Find dominant colors in images with QT and OpenCV, with a nice GUI to show results on a RGB wheel
-### v2.3 - 2019-07-08
+### v0 - 2019-10-10
 
 ![Screenshot - Global](screenshots/screenshot-gui.jpg?raw=true)
 <br/>
