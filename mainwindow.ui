@@ -1,0 +1,982 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1920</width>
+    <height>1080</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dominant Colors RGB Wheel</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <widget class="QLabel" name="label_thumbnail">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>130</y>
+      <width>251</width>
+      <height>251</height>
+     </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>1000</width>
+      <height>1000</height>
+     </size>
+    </property>
+    <property name="cursor">
+     <cursorShape>ArrowCursor</cursorShape>
+    </property>
+    <property name="mouseTracking">
+     <bool>true</bool>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the loaded image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <property name="text">
+     <string>Image</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_load_image">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>27</y>
+      <width>101</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Load the image to check&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                      stop: 0 #FFFFFF, stop: 1 #E0E0E0);
+	border-radius: 10px;
+	border: 2px outset #8f8f91;
+	color rgb(0,0,0);
+}
+QPushButton:pressed {
+	border: 2px inset #8f8f91;
+}
+QToolTip {
+    border:2px solid black;
+	padding:5px;
+	background-color:rgb(64,64,64);
+	color:white;
+	font-size: 14px;
+}</string>
+    </property>
+    <property name="text">
+     <string> Load
+image</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normalon>:/icons/image.png</normalon>
+     </iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>32</width>
+      <height>32</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_quit">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>450</y>
+      <width>111</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Quit this interesting piece of software&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                      stop: 0 #FFFFFF, stop: 1 #E0E0E0);
+	border-radius: 10px;
+	border: 2px outset #8f8f91;
+	color rgb(0,0,0);
+}
+QPushButton:pressed {
+	border: 2px inset #8f8f91;
+}
+QToolTip {
+    border:2px solid black;
+	padding:5px;
+	background-color:rgb(64,64,64);
+	color:white;
+	font-size: 14px;
+}</string>
+    </property>
+    <property name="text">
+     <string>QUIT</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normalon>:/icons/quit.png</normalon>
+     </iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>32</width>
+      <height>32</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_filename">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>700</y>
+      <width>701</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>8</pointsize>
+     </font>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Current filename&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <property name="text">
+     <string>Please load a file</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_wheel">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>0</y>
+      <width>701</width>
+      <height>701</height>
+     </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>1000</width>
+      <height>1000</height>
+     </size>
+    </property>
+    <property name="cursor">
+     <cursorShape>CrossCursor</cursorShape>
+    </property>
+    <property name="mouseTracking">
+     <bool>true</bool>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <property name="text">
+     <string>Wheel</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="spinBox_nb_palettes">
+    <property name="geometry">
+     <rect>
+      <x>1080</x>
+      <y>20</y>
+      <width>51</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="palette">
+     <palette>
+      <active>
+       <colorrole role="Highlight">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>135</red>
+          <green>167</green>
+          <blue>82</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </active>
+      <inactive>
+       <colorrole role="Highlight">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>135</red>
+          <green>167</green>
+          <blue>82</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </inactive>
+      <disabled>
+       <colorrole role="Highlight">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>167</red>
+          <green>167</green>
+          <blue>167</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </disabled>
+     </palette>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of dominant colors in the palette&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+    <property name="keyboardTracking">
+     <bool>false</bool>
+    </property>
+    <property name="minimum">
+     <number>1</number>
+    </property>
+    <property name="maximum">
+     <number>100</number>
+    </property>
+    <property name="value">
+     <number>3</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_quantized">
+    <property name="geometry">
+     <rect>
+      <x>980</x>
+      <y>144</y>
+      <width>371</width>
+      <height>371</height>
+     </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>1000</width>
+      <height>1000</height>
+     </size>
+    </property>
+    <property name="cursor">
+     <cursorShape>CrossCursor</cursorShape>
+    </property>
+    <property name="mouseTracking">
+     <bool>true</bool>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Resulting quatized image after using the Compute button, using the new limited palette.&lt;/p&gt;&lt;p&gt;You can left-click with your mouse any color on the quantized image, to get its RGB values (in decimal and hexadecimal) and percentage of use in the image.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <property name="text">
+     <string>Quantized</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_palette">
+    <property name="geometry">
+     <rect>
+      <x>1005</x>
+      <y>539</y>
+      <width>321</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>1000</width>
+      <height>1000</height>
+     </size>
+    </property>
+    <property name="cursor">
+     <cursorShape>CrossCursor</cursorShape>
+    </property>
+    <property name="mouseTracking">
+     <bool>true</bool>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Resulting palette after using the Compute button.&lt;/p&gt;&lt;p&gt;You can left-click with your mouse any color on the palette, to get its RGB values (in decimal and hexadecimal) and percentage of use in the image.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <property name="text">
+     <string>Palette</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBox_reduce_size">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>34</y>
+      <width>111</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reduce the image size to 512 pixels to speed up computing.&lt;/p&gt;&lt;p&gt;It doesn't affect much the final result.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>Reduce size</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBox_gaussian_blur">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>60</y>
+      <width>121</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apply a 3x3 gaussian blur to the image before proceeding.&lt;/p&gt;&lt;p&gt;It helps with noisy data.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>Gaussian blur</string>
+    </property>
+    <property name="checked">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioButton_k_means">
+    <property name="geometry">
+     <rect>
+      <x>1180</x>
+      <y>34</y>
+      <width>117</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;K-means is a well-known method to approximate data.&lt;/p&gt;&lt;p&gt;It is slow, though.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>&amp;K-means</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioButton_eigenvectors">
+    <property name="geometry">
+     <rect>
+      <x>1180</x>
+      <y>14</y>
+      <width>117</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Way faster than K-means, but produces less accurate results&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>eigen &amp;vectors</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_compute">
+    <property name="geometry">
+     <rect>
+      <x>1020</x>
+      <y>70</y>
+      <width>151</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After loading an image and adjusted parameters, compute the results.&lt;/p&gt;&lt;p&gt;The color wheel is where the dominant colors of the chosen image are displayed.&lt;/p&gt;&lt;p&gt;It shows the dominant colors distribution, so it can help you analyse how a photo or painting colors are distributed.&lt;/p&gt;&lt;p&gt;You can easily locate the color combinations : complementary colors are opposite on the wheel, analogous colors are near each other, triadic colors are located on an equilateral triangle which center is the wheel center, etc.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- the color wheel is based on HSV color space, where the Hue is the angle in degrees (clockwise, where red = 0), and the Saturation is the distance from the center. The Value is not represented here&lt;/p&gt;&lt;p&gt;- darker colors are near the center, lighter colors are near the inner circle. White, gray and black colors are centered on the wheel&lt;/p&gt;&lt;p&gt;- the main 12 additive colors can be found on the outer circle. Primary colors (Red, Green, Blue) are in the biggest circles. Secondary (Cyan, Magenta, Yellow) and Tertiary colors are also there&lt;/p&gt;&lt;p&gt;- the circle size for a dominant color is the percentage of this color in the whole image&lt;/p&gt;&lt;p&gt;- you can left-click with your mouse any color on the wheel (or palette or quantized image), to get its RGB values (in decimal and hexadecimal) and percentage of use in the image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                      stop: 0 #FFFFFF, stop: 1 #E0E0E0);
+	border-radius: 10px;
+	border: 2px outset #8f8f91;
+	color rgb(0,0,0);
+}
+QPushButton:pressed {
+	border: 2px inset #8f8f91;
+}
+QToolTip {
+    border:2px solid black;
+	padding:5px;
+	background-color:rgb(64,64,64);
+	color:white;
+	font-size: 14px;
+}</string>
+    </property>
+    <property name="text">
+     <string>COMPUTE</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normalon>:/icons/compute.png</normalon>
+     </iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>32</width>
+      <height>32</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_icon_colors">
+    <property name="geometry">
+     <rect>
+      <x>1040</x>
+      <y>20</y>
+      <width>28</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of dominant colors in the palette&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap resource="resources.qrc">:/icons/color.png</pixmap>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_color_bar">
+    <property name="geometry">
+     <rect>
+      <x>1040</x>
+      <y>630</y>
+      <width>61</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pick a color in the Color Wheel to show it here.&lt;/p&gt;&lt;p&gt;RGB values are displayed in decimal and hexadecimal.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <property name="text">
+     <string>Pick
+Color</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_color_r">
+    <property name="geometry">
+     <rect>
+      <x>1119</x>
+      <y>635</y>
+      <width>41</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pick a color in the Color Wheel to show it here.&lt;/p&gt;&lt;p&gt;RGB values are displayed in decimal and hexadecimal.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QLabel {
+	color:rgb(255,0,0);
+	background-color:rgb(220,220,220);
+	border: 2px inset #8f8f91;
+}
+
+QToolTip {
+    border:2px solid black;
+	padding:5px;
+	background-color:rgb(64,64,64);
+	color:white;
+	font-size: 14px;
+}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <property name="text">
+     <string>R</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_color_b">
+    <property name="geometry">
+     <rect>
+      <x>1230</x>
+      <y>635</y>
+      <width>41</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pick a color in the Color Wheel to show it here.&lt;/p&gt;&lt;p&gt;RGB values are displayed in decimal and hexadecimal.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QLabel {
+	color:rgb(0,0,255);
+	background-color:rgb(220,220,220);
+	border: 2px inset #8f8f91;
+}
+
+QToolTip {
+    border:2px solid black;
+	padding:5px;
+	background-color:rgb(64,64,64);
+	color:white;
+	font-size: 14px;
+}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <property name="text">
+     <string>B</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_color_g">
+    <property name="geometry">
+     <rect>
+      <x>1174</x>
+      <y>635</y>
+      <width>41</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pick a color in the Color Wheel to show it here.&lt;/p&gt;&lt;p&gt;RGB values are displayed in decimal and hexadecimal.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QLabel {
+	color:rgb(0,192,0);
+	background-color:rgb(220,220,220);
+	border: 2px inset #8f8f91;
+}
+
+QToolTip {
+    border:2px solid black;
+	padding:5px;
+	background-color:rgb(64,64,64);
+	color:white;
+	font-size: 14px;
+}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <property name="text">
+     <string>G</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_color_hex">
+    <property name="geometry">
+     <rect>
+      <x>1150</x>
+      <y>666</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pick a color in the Color Wheel to show it here.&lt;/p&gt;&lt;p&gt;RGB values are displayed in decimal and hexadecimal.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <property name="text">
+     <string>Hex</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_save_images">
+    <property name="geometry">
+     <rect>
+      <x>860</x>
+      <y>10</y>
+      <width>101</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Save the computed results : the color wheel with dominant colors, quantized image, color map of modified colors, and palette&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                      stop: 0 #FFFFFF, stop: 1 #E0E0E0);
+	border-radius: 10px;
+	border: 2px outset #8f8f91;
+	color rgb(0,0,0);
+}
+QPushButton:pressed {
+	border: 2px inset #8f8f91;
+}
+QToolTip {
+    border:2px solid black;
+	padding:5px;
+	background-color:rgb(64,64,64);
+	color:white;
+	font-size: 14px;
+}</string>
+    </property>
+    <property name="text">
+     <string>  Save
+images</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normalon>:/icons/save.png</normalon>
+     </iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>32</width>
+      <height>32</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_color_percentage">
+    <property name="geometry">
+     <rect>
+      <x>976</x>
+      <y>650</y>
+      <width>61</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pick a color in the Color Wheel to show it here.&lt;/p&gt;&lt;p&gt;RGB values are displayed in decimal and hexadecimal.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <property name="text">
+     <string>%</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_about">
+    <property name="geometry">
+     <rect>
+      <x>7</x>
+      <y>612</y>
+      <width>261</width>
+      <height>101</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QLabel" name="label_16">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>21</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;AbsurdePhoton, amateur photographer.&lt;/p&gt;&lt;p&gt;www.absurdephoton.fr&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap resource="resources.qrc">:/icons/absurdephoton.png</pixmap>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_18">
+     <property name="geometry">
+      <rect>
+       <x>5</x>
+       <y>35</y>
+       <width>31</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;* v0: launch&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="text">
+      <string>v0</string>
+     </property>
+     <property name="scaledContents">
+      <bool>false</bool>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <property name="indent">
+      <number>-1</number>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QLabel" name="label_15">
+    <property name="geometry">
+     <rect>
+      <x>7</x>
+      <y>612</y>
+      <width>261</width>
+      <height>111</height>
+     </rect>
+    </property>
+    <property name="cursor">
+     <cursorShape>ArrowCursor</cursorShape>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="lineWidth">
+     <number>3</number>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Dominant colors&lt;br/&gt;on RGB wheel&lt;/span&gt;&lt;br/&gt;by &lt;span style=&quot; color:#d89d1a;&quot;&gt;AbsurdePhoton&lt;/span&gt;&lt;a href=&quot;https::/www.absurdephoton.fr&quot;&gt;&lt;BR&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;www.absurdephoton.fr&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="openExternalLinks">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="timer">
+    <property name="geometry">
+     <rect>
+      <x>1190</x>
+      <y>90</y>
+      <width>101</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Elapsed time in seconds:milliseconds&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QLCDNumber{ 
+    background-color: rgb(64, 64,64);
+}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <property name="smallDecimalPoint">
+     <bool>false</bool>
+    </property>
+    <property name="digitCount">
+     <number>7</number>
+    </property>
+    <property name="value" stdset="0">
+     <double>0.000000000000000</double>
+    </property>
+    <property name="intValue" stdset="0">
+     <number>0</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_color_name">
+    <property name="geometry">
+     <rect>
+      <x>980</x>
+      <y>700</y>
+      <width>371</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pick a color in the Color Wheel to show it here.&lt;/p&gt;&lt;p&gt;RGB values are displayed in decimal and hexadecimal.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <property name="text">
+     <string>Color name</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

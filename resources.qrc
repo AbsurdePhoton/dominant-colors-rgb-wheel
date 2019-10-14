@@ -1,0 +1,11 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+  <file>./icons/absurdephoton.png</file>
+  <file>./icons/color.png</file>
+  <file>./icons/compute.png</file>
+  <file>./icons/image.png</file>
+  <file>./icons/load.png</file>
+  <file>./icons/quit.png</file>
+  <file>./icons/save.png</file>
+</qresource>
+</RCC>
