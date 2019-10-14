@@ -707,7 +707,7 @@ QToolTip {
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QPushButton" name="button_save_images">
+   <widget class="QPushButton" name="button_save">
     <property name="geometry">
      <rect>
       <x>860</x>
@@ -746,7 +746,7 @@ QToolTip {
     </property>
     <property name="text">
      <string>  Save
-images</string>
+results</string>
     </property>
     <property name="icon">
      <iconset>

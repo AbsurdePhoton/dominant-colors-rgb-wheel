@@ -52,7 +52,7 @@ private slots:
     //// GUI
     void on_button_load_image_clicked(); // load image to analyze
     void on_button_compute_clicked(); // compute dominant colors
-    void on_button_save_images_clicked(); // save results
+    void on_button_save_clicked(); // save results
 
 private:
     Ui::MainWindow *ui;

@@ -108,8 +108,13 @@ This software should also work under Microsoft Windows: if you tried it successf
 	* color name. Sometimes it is poetic, and sometimes it is just a code. This information was tricky to apply:
 		* I used a text file containing more than 9000 RGB values and corresponding color names from http://mkweb.bcgsc.ca/colornames
 		* if the exact RGB value is found the name is displayed, if not the nearest color is displayed (using the euclidian distance in RGB color space between the two colors)
+		* remember to put color-names.txt in the same folder as the executable (particularly in your compiling folder)
 
-* If you want to keep the results, click on the "Save Images" button on the Color Wheel. They will be saved in the same folder as the original image, with suffixes ( for palette, color wheel, quantized image)
+* If you want to keep the results, click on the "Save results" button on the Color Wheel. They will be saved with the provided file name + suffixes:
+	* Palette: filename-palette.png
+	* Color Wheel: filename-color-wheel.png
+	* Quantized image: filename--quantized.png
+	* CSV file of palette: filename-palette.csv - RGB values (decimal and hexadecimal) and percentage are saved
 
 
 ### ACCURACY

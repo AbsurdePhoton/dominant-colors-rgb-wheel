@@ -106,6 +106,9 @@ void MainWindow::InitializeValues() // Global variables init
 
         names.close(); // close text file
     }
+    else {
+        QMessageBox::critical(this, "Colors text file not found!", "You forgot to put 'color-names.txt' in the same folder as the executable! This tool will crash if you click on a color...");
+    }
 }
 
 void MainWindow::on_button_quit_clicked() // quit GUI
@@ -120,26 +123,6 @@ void MainWindow::on_button_quit_clicked() // quit GUI
 void MainWindow::on_button_compute_clicked() // compute dominant colors and result images
 {
     Compute();
-}
-
-void MainWindow::on_button_save_images_clicked() // save dominant colors results
-{
-    if (!computed) { // nothing loaded yet = get out
-        QMessageBox::critical(this, "Nothing to do!", "You have to load then compute before saving the images");
-        return;
-    }
-
-    // if image not empty save it with base name + type .PNG
-    if (!quantized.empty())
-        cv::imwrite(basedir + basefile + "-quantized.png", quantized);
-    if (!palette.empty())
-        cv::imwrite(basedir + basefile + "-palette.png", palette);
-    if (!wheel.empty())
-        cv::imwrite(basedir + basefile + "-wheel.png", wheel);
-    /*if (!classification.empty())
-        cv::imwrite(basedir + basefile + "-classification.png", classification);*/
-
-    QMessageBox::information(this, "Images saved", "Your images were saved with the base file name:\n" + QString::fromStdString(basedir + basefile));
 }
 
 /////////////////// Mouse events //////////////////////
@@ -303,6 +286,51 @@ void MainWindow::on_button_load_image_clicked() // load image to analyze
     ShowWheel(); // display wheel
 
     ui->timer->display("0"); // reset timer
+}
+
+void MainWindow::on_button_save_clicked() // save dominant colors results
+{
+    if (!computed) { // nothing loaded yet = get out
+        QMessageBox::critical(this, "Nothing to do!", "You have to load then compute before saving the images");
+        return;
+    }
+
+    QString filename = QFileDialog::getSaveFileName(this, "Save image file", QString::fromStdString(basedir + basefile + ".png"), "PNG (*.png *.PNG)"); // image filename
+    if (filename.isNull() || filename.isEmpty()) // cancel ?
+        return;
+
+    ChangeBaseDir(filename); // save current path to ini file
+
+    // if image not empty save it with base name + type .PNG
+    if (!quantized.empty())
+        cv::imwrite(basedir + basefile + "-quantized.png", quantized);
+    if (!palette.empty())
+        cv::imwrite(basedir + basefile + "-palette.png", palette);
+    if (!wheel.empty())
+        cv::imwrite(basedir + basefile + "-wheel.png", wheel);
+    /*if (!classification.empty())
+        cv::imwrite(basedir + basefile + "-classification.png", classification);*/
+
+    // Palette
+    std::string line; // line to write in text file
+    ofstream save; // file to save
+    save.open(basedir + basefile + "-palette.csv"); // save palette file
+
+    if (save) { // if successfully open
+        //std::string s; // line to save
+        for (int n = 0; n < nb_palettes; n++) { // read palette
+            save << palettes[n].R << ";";
+            save << palettes[n].G << ";";
+            save << palettes[n].B << ";";
+            QString hex = QString("%1").arg(((palettes[n].R & 0xff) << 16) + ((palettes[n].G & 0xff) << 8) + (palettes[n].B & 0xff), 6, 16, QChar('0')); // hexa from RGB value
+            save << "#" << hex.toUpper().toUtf8().constData() << ";";
+            save << palettes[n].percentage << "\n";
+        }
+
+        save.close(); // close text file
+    }
+
+    QMessageBox::information(this, "Results saved", "Your results were saved with base file name:\n" + QString::fromStdString(basedir + basefile));
 }
 
 /////////////////// RGB & HSL //////////////////////
