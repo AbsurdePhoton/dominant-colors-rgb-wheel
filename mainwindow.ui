@@ -463,7 +463,7 @@ QToolTip {
      <enum>Qt::NoFocus</enum>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After loading an image and adjusted parameters, compute the results.&lt;/p&gt;&lt;p&gt;The color wheel is where the dominant colors of the chosen image are displayed.&lt;/p&gt;&lt;p&gt;It shows the dominant colors distribution, so it can help you analyse how a photo or painting colors are distributed.&lt;/p&gt;&lt;p&gt;You can easily locate the color combinations : complementary colors are opposite on the wheel, analogous colors are near each other, triadic colors are located on an equilateral triangle which center is the wheel center, etc.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- the color wheel is based on HSV color space, where the Hue is the angle in degrees (clockwise, where red = 0), and the Saturation is the distance from the center. The Value is not represented here&lt;/p&gt;&lt;p&gt;- darker colors are near the center, lighter colors are near the inner circle. White, gray and black colors are centered on the wheel&lt;/p&gt;&lt;p&gt;- the main 12 additive colors can be found on the outer circle. Primary colors (Red, Green, Blue) are in the biggest circles. Secondary (Cyan, Magenta, Yellow) and Tertiary colors are also there&lt;/p&gt;&lt;p&gt;- the circle size for a dominant color is the percentage of this color in the whole image&lt;/p&gt;&lt;p&gt;- you can left-click with your mouse any color on the wheel (or palette or quantized image), to get its RGB values (in decimal and hexadecimal) and percentage of use in the image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After loading an image and adjusted parameters, compute the results.&lt;/p&gt;&lt;p&gt;The color wheel is where the dominant colors of the image are displayed.&lt;/p&gt;&lt;p&gt;It shows the dominant colors distribution, so it can help you analyse how a photo or painting colors are distributed.&lt;/p&gt;&lt;p&gt;You can easily locate the color combinations : complementary colors are opposite on the wheel, analogous colors are near each other, triadic colors are located on an equilateral triangle which center is the wheel center, etc.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;- the color wheel is based on the HSL color space, where :&lt;/p&gt;&lt;p&gt;* Hue is the angle in degrees (clockwise, where red = 0)&lt;/p&gt;&lt;p&gt;* Saturation is the distance from the center&lt;/p&gt;&lt;p&gt;* Lightness is used to show the blacker colors near the center of the wheel, the lighter at the edge of the inner circle.&lt;/p&gt;&lt;p&gt;- darker colors are near the center, lighter colors are near the inner circle. White, gray and black colors (R = G = B) are aligned on the red axis&lt;/p&gt;&lt;p&gt;- the main 12 additive colors can be found on the outer circle. Primary colors (Red, Green, Blue) are in the biggest circles. Secondary (Cyan, Magenta, Yellow) and Tertiary colors are also there&lt;/p&gt;&lt;p&gt;- the circle size for a dominant color is the percentage of this color in the whole image. Adjust all circle sizes with the slider or use the mouse wheel&lt;/p&gt;&lt;p&gt;- you can left-click with your mouse any color on the wheel (or palette or quantized image), to get its RGB values (in decimal and hexadecimal) and percentage of use in the image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton {
@@ -835,7 +835,7 @@ results</string>
       </rect>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;* v0: launch&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;* v0: launch&lt;/p&gt;&lt;p&gt;* v0.1: found a better way to represent colors : using conversion from RGB to HSL instead of HSV, to have blacker colors near the center of the wheel and lighter at the edge of the inner circle - also added a circle size factor&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -844,7 +844,7 @@ results</string>
       <enum>QFrame::Sunken</enum>
      </property>
      <property name="text">
-      <string>v0</string>
+      <string>v0.1</string>
      </property>
      <property name="scaledContents">
       <bool>false</bool>
@@ -963,6 +963,34 @@ results</string>
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
+   <widget class="QSlider" name="verticalSlider_circle_size">
+    <property name="geometry">
+     <rect>
+      <x>940</x>
+      <y>80</y>
+      <width>29</width>
+      <height>160</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use this slider to adjust the color circles size, which represent the percentage of use of a color in the quantized image.&lt;/p&gt;&lt;p&gt;You can also use the mouse wheel&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="minimum">
+     <number>1</number>
+    </property>
+    <property name="maximum">
+     <number>60</number>
+    </property>
+    <property name="value">
+     <number>8</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+    <property name="tickPosition">
+     <enum>QSlider::TicksBelow</enum>
+    </property>
+   </widget>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -978,5 +1006,25 @@ results</string>
  <resources>
   <include location="resources.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>verticalSlider_circle_size</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>SetCircleSize(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>954</x>
+     <y>172</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>959</x>
+     <y>539</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>SetCircleSize(int)</slot>
+ </slots>
 </ui>

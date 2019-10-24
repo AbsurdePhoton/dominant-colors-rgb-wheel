@@ -1,6 +1,6 @@
 # dominant-colors-rgb-wheel
 ## Find dominant colors in images with QT and OpenCV, with a nice GUI to show results on a RGB wheel
-### v0 - 2019-10-10
+### v0.1 - 2019-10-10
 
 ![Screenshot - Global](screenshots/screenshot-gui.jpg?raw=true)
 <br/>
@@ -8,6 +8,7 @@
 ## HISTORY
 
 * v0: launch
+* v0.1: found a better way to represent colors : using conversion from RGB to HSL instead of HSV, to have blacker colors near the center of the wheel and lighter at the edge of the inner circle - also added a circle size factor slider
 <br/>
 <br/>
 
@@ -23,7 +24,7 @@ I used bits of code from several sources, which are cited within the code
 
 Lately I paid great attention to colors in my photo editing process. Delicately tuning colors can greatly improve an already good photo, to make it stunning!
 
-I tried to find tools on the internet, but none of them had all I wanted, so I started coding once again...
+I wanted to analyze the color distribution of my own photos: I tried to find tools on the internet, but none of them had all I wanted, so I started coding once again...
 
 I'm not an ace of C++ and QT. So, if you don't find my code pretty never mind, because it WORKS, and that's all I'm asking of it :)
 <br/>
@@ -64,10 +65,10 @@ This software should also work under Microsoft Windows: if you tried it successf
 * How many dominant colors do you want? Choose wisely, bigger values take greater time to compute
 
 * You have to choose the algorithm first. Two are at your service:
-	* Eigen vectors: the fastest, but a bit less accurate - source: http://aishack.in/tutorials/dominant-color/
+	* Eigen vectors: the fastest - source: http://aishack.in/tutorials/dominant-color/
 	* K-means: a well-known algorithm to aggregate significant data  - source: https://jeanvitor.com/k-means-image-segmentation-opencv/
 
-* Click Compute to finish: you end up with an updated Color Wheel, a quantized image and a palette. The elapsed time is shown in the LCD display
+* Click Compute to finish: you end up with an updated Color Wheel, a Quantized image and a Palette. The elapsed time is shown in the LCD display
 
 ### COLOR WHEEL
 
@@ -81,18 +82,16 @@ This software should also work under Microsoft Windows: if you tried it successf
 		* triadic colors are located on an equilateral triangle which center is the wheel center
 		* etc
 
-* The Color Wheel representation is based on HSV color space:
+* The Color Wheel representation is based on HSL color space:
 	* Hue is represented by the angle in degrees in the circle (clockwise, where red = 0)
 	* Saturation is the distance from the center
-	* Value is not represented here, HSV is a 3-dimensionnal color space (a cylinder)
-
-* Darker colors are near the center, lighter colors are near the inner circle. White, gray and black colors are centered on the wheel
+	* Lightness is used to move darker values near the center of the wheel, and lighter near the inner circle. Pure white, gray and black colors are aligned by default on the red axis
 
 * The main 12 additive colors can be found on the outer circle to help caracterizing a dominant color:
 	* Primary colors (Red, Green, Blue) are in the biggest circles
 	* Secondary (Cyan, Magenta, Yellow) and Tertiary colors are also represented
 
-* The circle size of a dominant color is the percentage of this color in the whole image (in the inner circle). A circle can't be less than 40 pixels
+* The circle size of a dominant color is the percentage of this color in the whole image (in the inner circle). You can increase or decrease the whole bunch of color circles with the slider, or use the mouse wheel
 
 ### PALETTE
 

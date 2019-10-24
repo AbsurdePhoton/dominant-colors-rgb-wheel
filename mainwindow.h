@@ -4,7 +4,7 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#                v0 - 2019/10/10
+#                v0.1 - 2019/10/24
 #
 #-------------------------------------------------*/
 
@@ -39,6 +39,7 @@ public:
 
 public slots:
     void ShowTimer(); // time elapsed
+    void SetCircleSize(int size); // called when circle size slider is moved
 
 private slots:
 
@@ -63,10 +64,12 @@ private:
     //// Display
     void ShowResults(); // display thumbnail, quantized image, palette
     void ShowWheel(); // display color wheel
-    void DrawOnWheel(const int &R, const int &G, const int &B, const int &radius, const int wheel_radius_local, const bool &border); // draw one color on wheel
+    void DrawOnWheel(const int &R, const int &G, const int &B, const int &radius); // draw one color on wheel
+    void DrawOnWheelBorder(const int &R, const int &G, const int &B, const int &radius); // draw one color on wheel border
 
     //// Mouse & Keyboard
     void mousePressEvent(QMouseEvent *eventPress); // mouse clic events
+    void wheelEvent(QWheelEvent *wheelEvent); // mouse wheel turned
 
     //// General
     void Compute(); // compute dominant colors

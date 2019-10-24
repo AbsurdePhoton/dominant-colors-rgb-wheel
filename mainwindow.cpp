@@ -4,7 +4,7 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#                v0 - 2019/10/10
+#                v0.1 - 2019/10/24
 #
 #-------------------------------------------------*/
 
@@ -223,6 +223,20 @@ void MainWindow::mousePressEvent(QMouseEvent *eventPress) // event triggered by 
     }
 }
 
+void MainWindow::wheelEvent(QWheelEvent *wheelEvent) // mouse wheel turned
+{
+    if (!computed)
+        return;// get out
+
+    int n = wheelEvent->delta(); // amount of wheel turn
+    if (n > 0) { // positive = circle size up
+        ui->verticalSlider_circle_size->setValue(ui->verticalSlider_circle_size->value() + 1);
+    }
+    if (n < 0) { // negative = circle size down
+        ui->verticalSlider_circle_size->setValue(ui->verticalSlider_circle_size->value() - 1);
+    }
+}
+
 /////////////////// Save and load //////////////////////
 
 void MainWindow::SaveDirBaseFile() // write current folder name in ini file
@@ -333,72 +347,6 @@ void MainWindow::on_button_save_clicked() // save dominant colors results
     QMessageBox::information(this, "Results saved", "Your results were saved with base file name:\n" + QString::fromStdString(basedir + basefile));
 }
 
-/////////////////// RGB & HSL //////////////////////
-
-float RGBMin(const float &fR, const float &fG, const float &fB) // max value in RGB triplet
-{
-    float fMin = fR;
-    if (fG < fMin)
-        fMin = fG;
-    if (fB < fMin)
-        fMin = fB;
-    return fMin;
-}
-
-float RGBMax(const float &fR, const float &fG, const float &fB) // min value in RGB triplet
-{
-    float fMax = fR;
-    if (fG > fMax)
-        fMax = fG;
-    if (fB > fMax)
-        fMax = fB;
-    return fMax;
-}
-
-void RGBToHSL(const int &R, const int &G, const int &B, float& H, float& S, float& L) // convert RGB value to HSL
-{
-    // R, G, B values divided by 255 for a range in [0..1]
-    float r = R / 255.0;
-    float g = G / 255.0;
-    float b = B / 255.0;
-
-    float h, s, v; // h, s, v = hue, saturation, value
-
-    float cmax = RGBMax(r, g, b);    // maximum of r, g, b
-    float cmin = RGBMin(r, g, b);    // minimum of r, g, b
-    float diff = cmax-cmin;       // diff of cmax and cmin.
-
-    if (cmax == cmin) // cmin = cmax
-        h = 0;
-
-    else if (cmax == r) // cmax = r
-        h = int(60 * ((g - b) / diff) + 360) % 360;
-
-    else if (cmax == g) // cmax = g
-        h = int(60 * ((b - r) / diff) + 120) % 360;
-
-    else if (cmax == b) // cmax = b
-        h = int(60 * ((r - g) / diff) + 240) % 360;
-
-    v = cmax * 100.0; // compute v
-
-    // compute s
-    if (cmax == 0) // 0 is a particular value
-        s = cmax;
-    else if ((r == g) and (g == b)) // grey => center of the wheel
-    {
-        s = r;
-        v = 0;
-    }
-    else
-        s = (r + g + b) / 3.0; // average of R G B
-
-    // Final results are in range [0..1]
-    H = (h + 90) / 360.0; // was in degrees
-    S = s; // percentage
-    L = v / 100.0; // percentage
-}
-
 /////////////////// Core functions //////////////////////
 
 void MainWindow::Compute() // analyze image dominant colors
@@ -487,21 +435,30 @@ void MainWindow::ShowResults() // display result images in GUI
         else ui->label_classification->setPixmap(QPixmap());*/
 }
 
-void MainWindow::DrawOnWheel(const int &R, const int &G, const int &B, const int &radius, const int wheel_radius_local, const bool &border = true) // draw one color circle on the wheel
+void MainWindow::DrawOnWheelBorder(const int &R, const int &G, const int &B, const int &radius) // draw one color circle on the wheel
 {
-    float H, S, L; // HSL values
-    RGBToHSL(R, G, B, H, S, L); // convert RGB to HSL values
+    float H, S, L, C; // HSL values
+    RGBtoHSL(float(R) / 255.0f, float(G) / 255.0f, float(B) / 255.0f, H, S, L, C); // convert RGB to HSL values
 
-    int r = radius; // radius of color circle
-    if (radius == 0) r = 40; // no radius specified = minimum radius
-    float colorRadius = float(wheel_radius_local) * L; // color distance from center
-    float angle = (1 - H) * (2 * Pi); // angle convert degrees to Pi value
-    float xOffset = cos(angle) * colorRadius; // position from center of circle
-    float yOffset = sin(angle) * colorRadius;
+    float angle = -(H + 0.25) * 2.0f * Pi; // angle convert degrees to Pi value + shift to have red on top
+    float xOffset = cosf(angle) * wheel_radius; // position from center of circle
+    float yOffset = sinf(angle) * wheel_radius;
 
-    cv::circle(wheel, cv::Point(wheel_center.x + xOffset, wheel_center.y + yOffset), r, Vec3b(B, G, R), -1, cv::LINE_AA); // draw color disk
-    if (border) // draw border ?
-        cv::circle(wheel, cv::Point(wheel_center.x + xOffset, wheel_center.y + yOffset), r, Vec3b(255,255,255), 2, cv::LINE_AA); // white border
+    cv::circle(wheel, cv::Point(wheel_center.x + xOffset, wheel_center.y + yOffset), radius, Vec3b(B, G, R), -1, cv::LINE_AA); // draw color disk
+    cv::circle(wheel, cv::Point(wheel_center.x + xOffset, wheel_center.y + yOffset), radius, Vec3b(255,255,255), 2, cv::LINE_AA); // white border
+}
+
+void MainWindow::DrawOnWheel(const int &R, const int &G, const int &B, const int &radius) // draw one color circle on the wheel
+{
+    float H, S, L, C; // HSL values
+    RGBtoHSL(float(R) / 255.0f, float(G) / 255.0f, float(B) / 255.0f, H, S, L, C); // convert RGB to HSL values
+
+    float colorRadius = float(wheel_radius_center) * L; // color distance from center
+    float angle = -(H + 0.25) * 2.0f * Pi; // angle convert degrees to Pi value + shift to have red on top
+    float xOffset = cosf(angle) * colorRadius; // position from center of circle
+    float yOffset = sinf(angle) * colorRadius;
+
+    cv::circle(wheel, cv::Point(wheel_center.x + xOffset, wheel_center.y + yOffset), round(float(radius) * float(ui->verticalSlider_circle_size->value()) / 4), Vec3b(B, G, R), -1, cv::LINE_AA); // draw color disk
 }
 
 void MainWindow::ShowWheel() // display color wheel
@@ -518,24 +475,25 @@ void MainWindow::ShowWheel() // display color wheel
 
     // draw Primary, Secondary and Tertiary colors on wheel
     // Primary = biggest circles
-    DrawOnWheel(255,0,0,40, wheel_radius); // red
-    DrawOnWheel(0,255,0,40, wheel_radius); // green
-    DrawOnWheel(0,0,255,40, wheel_radius); // blue
+    DrawOnWheelBorder(255,0,0,40); // red
+    DrawOnWheelBorder(0,255,0,40); // green
+    DrawOnWheelBorder(0,0,255,40); // blue
     // Secondary
-    DrawOnWheel(255,255,0,30, wheel_radius); // yellow
-    DrawOnWheel(255,0,255,30, wheel_radius); // magenta
-    DrawOnWheel(0,255,255,30, wheel_radius); // blue
+    DrawOnWheelBorder(255,255,0,30); // yellow
+    DrawOnWheelBorder(255,0,255,30); // magenta
+    DrawOnWheelBorder(0,255,255,30); // blue
     // Tertiary
-    DrawOnWheel(255,127,0,20, wheel_radius); // orange
-    DrawOnWheel(255,0,127,20, wheel_radius); // rose
-    DrawOnWheel(127,0,255,20, wheel_radius); // violet
-    DrawOnWheel(0,127,255,20, wheel_radius); // azure
-    DrawOnWheel(0,255,127,20, wheel_radius); // aquamarine
-    DrawOnWheel(127,255,0,20, wheel_radius); // chartreuse
+    DrawOnWheelBorder(255,127,0,20); // orange
+    DrawOnWheelBorder(255,0,127,20); // rose
+    DrawOnWheelBorder(127,0,255,20); // violet
+    DrawOnWheelBorder(0,127,255,20); // azure
+    DrawOnWheelBorder(0,255,127,20); // aquamarine
+    DrawOnWheelBorder(127,255,0,20); // chartreuse
 
     // Draw palette disks - size = percentage of use in quantized image
     for (int n = 0; n < nb_palettes;n++) // for each color in palette
-        DrawOnWheel(palettes[n].R, palettes[n].G,palettes[n].B, int(palettes[n].percentage * 100) + 10, wheel_radius_center, false); // draw color disk
+        DrawOnWheel(palettes[n].R, palettes[n].G,palettes[n].B,
+                    int(palettes[n].percentage * 100.0f)); // draw color disk
 
     ui->label_wheel->setPixmap(Mat2QPixmap(wheel)); // update view
 }
@@ -547,4 +505,9 @@ void MainWindow::ShowTimer() // time elapsed
     ui->timer->display(QString("%1").arg(seconds, 3, 10, QChar('0'))
                       + "."
                       + QString("%1").arg(milliseconds, 3, 10, QChar('0')));
+}
+
+void MainWindow::SetCircleSize(int size) // called when circle size slider is moved
+{
+    ShowWheel();
 }
