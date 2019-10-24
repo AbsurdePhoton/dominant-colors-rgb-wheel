@@ -84,7 +84,7 @@ This software should also work under Microsoft Windows: if you tried it successf
 
 * The Color Wheel representation is based on HSL color space:
 	* Hue is represented by the angle in degrees in the circle (clockwise, where red = 0)
-	* Saturation is the distance from the center
+	* Saturation not used here
 	* Lightness is used to move darker values near the center of the wheel, and lighter near the inner circle. Pure white, gray and black colors are aligned by default on the red axis
 
 * The main 12 additive colors can be found on the outer circle to help caracterizing a dominant color:
