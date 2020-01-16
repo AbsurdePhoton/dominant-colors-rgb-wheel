@@ -1,11 +1,24 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
+  <file>./icons/3d-strip-triangles.png</file>
   <file>./icons/absurdephoton.png</file>
   <file>./icons/color.png</file>
+  <file>./icons/color-brightness.png</file>
+  <file>./icons/color-scheme-analogous.png</file>
+  <file>./icons/color-scheme-complementary.png</file>
+  <file>./icons/color-scheme-none.png</file>
+  <file>./icons/color-scheme-monochromatic.png</file>
+  <file>./icons/color-scheme-split-complementary.png</file>
+  <file>./icons/color-scheme-square.png</file>
+  <file>./icons/color-scheme-tetradic.png</file>
+  <file>./icons/color-scheme-triadic.png</file>
+  <file>./icons/color-scheme-warm-cool.png</file>
   <file>./icons/compute.png</file>
   <file>./icons/image.png</file>
   <file>./icons/load.png</file>
   <file>./icons/quit.png</file>
+  <file>./icons/reset.png</file>
   <file>./icons/save.png</file>
+  <file>./icons/yin-yang.png</file>
 </qresource>
 </RCC>

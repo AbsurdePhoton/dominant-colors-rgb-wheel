@@ -3,7 +3,7 @@
  * OpenCV image tools library
  * Author: AbsurdePhoton
  *
- * v1.9 - 2019/07/08
+ * v2.1 - 2020/01/11
  *
  * Convert mat images to QPixmap or QImage and vice-versa
  * Brightness, Contrast, Gamma, Equalize, Color Balance
@@ -14,15 +14,17 @@
  * Noise reduction quality
  * Gray gradients
  * Red-cyan anaglyph tints
+ * Count number of RGB colors in image
  *
 #-------------------------------------------------*/
-
 
 #include <QPixmap>
 
 #include "opencv2/opencv.hpp"
 
 #include "mat-image-tools.h"
+#include "angles.h"
+#include "color-spaces.h"
 
 using namespace std;
 using namespace cv;
@@ -299,7 +301,7 @@ Mat ShiftFrame(const Mat &source, const int &nb_pixels, const shift_direction &d
 }
 
 ///////////////////////////////////////////////////////////
-//// Clipping & Resize
+//// Clipping & Resizing
 ///////////////////////////////////////////////////////////
 
 Mat CopyFromImage (Mat source, const Rect &frame) // copy part of an image
@@ -406,19 +408,19 @@ double GrayCurve(const int &color, const int &type, const int &begin, const int 
         // good spread
         case curve_linear: return color; // linear -> the same color !
         // S-shaped
-        case curve_cosinus2: return pow(cos(Pi / 2 - x * Pi/2), 2) * range + begin; // cosinus² (better color gradient): f(x)=cos(pi/2-x*pi/2)²
+        case curve_cosinus2: return pow(cos(Pi / 2 - x * Pi / 2), 2) * range + begin; // cosinus² (better color gradient): f(x)=cos(pi/2-x*pi/2)²
         case curve_sigmoid: return 1.0 / (1 + exp(-5 * (2* (x) - 1))) * range + begin; // sigmoid (S-shaped): f(x)=1/(1 + e(-5*(2x -1))
         // fast beginning
-        case curve_cosinus: return cos(Pi / 2 - x * Pi/2) * range + begin; // cosinus (more of end color): f(x)=cos(pi/2-x*pi/2)
-        case curve_cos2sqrt: return pow(cos(Pi/2 - sqrt(x) * Pi/2), 2) * range + begin; // cos²sqrt: f(x)=cos(pi/2−sqrt(x)*pi/2)²
+        case curve_cosinus: return cos(Pi / 2 - x * Pi / 2) * range + begin; // cosinus (more of end color): f(x)=cos(pi/2-x*pi/2)
+        case curve_cos2sqrt: return pow(cos(Pi / 2 - sqrt(x) * Pi / 2), 2) * range + begin; // cos²sqrt: f(x)=cos(pi/2−sqrt(x)*pi/2)²
         // fast ending
         case curve_power2: return pow(x, 2) * range + begin; // power2 (more of begin color): f(x)=x²
-        case curve_cos2power2: return pow(cos(Pi/2 - pow(x, 2) * Pi/2), 2) * range + begin; // cos²power2: f(x)=cos(pi/2−x²∙pi/2)²
+        case curve_cos2power2: return pow(cos(Pi / 2 - pow(x, 2) * Pi / 2), 2) * range + begin; // cos²power2: f(x)=cos(pi/2−x²∙pi/2)²
         case curve_power3: return pow(x, 3) * range + begin; // power3 (even more of begin color): f(x)=x³
         // undulate
-        case curve_undulate: return cos(double(color-begin) / 4 * Pi) * range + begin; // undulate: f(x)=cos(x/4*pi)
-        case curve_undulate2: return cos(pow(double(color-begin) * 2 * Pi/2 + 0.5, 2)) * range + begin; // undulate²: f(x)=cos((x*2*pi)²) / 2 + 0.5
-        case curve_undulate3: return (cos(Pi*Pi*pow(x+2.085,2))/(pow(x+2.085,3)+8)+(x+2.085)-2.11) * range + begin; // undulate3: f(x) = cos(pi²∙(x+2.085)²) / ((x+2.085)³+10) + (x+2.085) − 2.11
+        case curve_undulate: return cos(double(color - begin) / 4 * Pi) * range + begin; // undulate: f(x)=cos(x/4*pi)
+        case curve_undulate2: return cos(pow(double(color - begin) * 2 * Pi / 2 + 0.5, 2)) * range + begin; // undulate²: f(x)=cos((x*2*pi)²) / 2 + 0.5
+        case curve_undulate3: return (cos(Pi * Pi * pow(x+2.085,2)) / (pow(x + 2.085,3) + 8)+(x + 2.085) - 2.11) * range + begin; // undulate3: f(x) = cos(pi²∙(x+2.085)²) / ((x+2.085)³+10) + (x+2.085) − 2.11
 
         //case 5: return sqrt(double(color-begin) / range) * range + begin;
     }
@@ -596,3 +598,54 @@ Mat AnaglyphTint(const Mat & source, const int &tint) // change tint of image to
     return dest;
 }
 
+//// Number of colors in image
+
+int CountRGBUniqueValues(const cv::Mat &image) // count number of RGB colors in image
+{
+    std::set<int> unique;
+
+    for (Vec3b &p : cv::Mat_<Vec3b>(image)) { // iterate over pixels (assummes: CV_8UC3 !)
+        int n = (p[0] << 16) | (p[1] << 8) | (p[2]); // "hash" representation of the pixel
+        unique.insert(n);
+    }
+
+    return unique.size();
+}
+
+//// Conversions of images to other colors spaces
+
+cv::Mat ImgRGBtoLab(const cv::Mat &source) // convert RGB image to CIELab
+{
+    cv::Mat temp(source.rows, source.cols, CV_32FC3); // CIELab "image" values
+    cv::Vec3b color;
+    long double X, Y, Z, L, a, b;
+    for (int x = 0; x < source.cols; x++) // parse image
+        for  (int y = 0; y < source.rows; y++) {
+            color = source.at<cv::Vec3b>(y, x); // current pixel
+            RGBtoXYZ((long double)color[2] / 255.0, (long double)color[1] / 255.0, (long double)color[0] / 255.0, X, Y, Z); // convert RGB to XYZ
+            XYZtoLAB(X, Y, Z, L, a, b); // convert XYZ to CIELab
+            temp.at<cv::Vec3f>(y, x)[0] = float(L); // write CIELab values to temp image
+            temp.at<cv::Vec3f>(y, x)[1] = float(a);
+            temp.at<cv::Vec3f>(y, x)[2] = float(b);
+        }
+
+    return temp;
+}
+
+cv::Mat ImgLabToRGB(const cv::Mat &source) // convert Lab image to RGB
+{
+    long double R, G, B, X, Y, Z;
+    cv::Mat output(source.rows, source.cols, CV_8UC3); // this will be the final RGB image
+    cv::Vec3f Lab;
+    for (int x = 0; x < output.cols; x++) // parse CIELab data
+        for  (int y = 0; y < output.rows; y++) {
+            Lab = source.at<cv::Vec3f>(y, x); // current CIELAb value
+            LABtoXYZ(Lab[0], Lab[1], Lab[2], X, Y, Z); // convert it to XYZ
+            XYZtoRGB(X, Y, Z, R, G, B); // then to RGB
+            output.at<cv::Vec3b>(y, x)[2] = round(R * 255.0); // RGB value in final RGB image
+            output.at<cv::Vec3b>(y, x)[1] = round(G * 255.0);
+            output.at<cv::Vec3b>(y, x)[0] = round(B * 255.0);
+        }
+
+    return output;
+}

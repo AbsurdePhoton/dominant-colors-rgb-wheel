@@ -5,24 +5,25 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#                v1 - 2019/10/21
+#                v1.2 - 2020/01/11
 #
 #   - eigen vectors algorithm
 #   - K-means algorithm
-#   - conversions between color spaces
 #
 #-------------------------------------------------*/
 
 #include <opencv2/opencv.hpp>
 
 #include "dominant-colors.h"
+#include "color-spaces.h"
+#include "mat-image-tools.h"
 
-using namespace std;
+////////////////////////////////////////////////////////////
+////                Eigen vectors algorithm
+////////////////////////////////////////////////////////////
 
-/////////////////// Eigen vectors algorithm/////////////////
-
-//// code adapted from Utkarsh Sinha
-//// http://aishack.in/tutorials/dominant-color/
+// code adapted from Utkarsh Sinha, no more 256 colors limit by using int for "class id"
+// source : http://aishack.in/tutorials/dominant-color/
 
 std::vector<color_node*> GetLeaves(color_node *root)
 {
@@ -46,16 +47,16 @@ std::vector<color_node*> GetLeaves(color_node *root)
     return ret;
 }
 
-std::vector<cv::Vec3b> GetDominantColors(color_node *root)
+std::vector<cv::Vec3f> GetDominantColors(color_node *root)
 {
     std::vector<color_node*> leaves = GetLeaves(root);
-    std::vector<cv::Vec3b> ret;
+    std::vector<cv::Vec3f> ret;
 
     for (unsigned int i=0; i < leaves.size(); i++) {
         cv::Mat mean = leaves[i]->mean;
-        ret.push_back(cv::Vec3b(mean.at<double>(0) * 255.0f,
-                                mean.at<double>(1) * 255.0f,
-                                mean.at<double>(2) * 255.0f));
+        ret.push_back(cv::Vec3f(mean.at<double>(0),
+                                mean.at<double>(1),
+                                mean.at<double>(2)));
     }
 
     return ret;
@@ -87,7 +88,7 @@ void GetClassMeanCov(cv::Mat img, cv::Mat classes, color_node *node)
 {
     const int width = img.cols;
     const int height = img.rows;
-    const uchar class_id = node->class_id;
+    const int class_id = node->class_id;
 
     cv::Mat mean = cv::Mat(3, 1, CV_64FC1, cv::Scalar(0));
     cv::Mat cov = cv::Mat(3, 3, CV_64FC1, cv::Scalar(0));
@@ -95,17 +96,17 @@ void GetClassMeanCov(cv::Mat img, cv::Mat classes, color_node *node)
     // start out with the average color
     double pix_count = 0;
     for (int y = 0; y < height; y++) {
-        cv::Vec3b* ptr = img.ptr<cv::Vec3b>(y);
-        uchar* ptrClass = classes.ptr<uchar>(y);
+        cv::Vec3f* ptr = img.ptr<cv::Vec3f>(y);
+        char16_t* ptrClass = classes.ptr<char16_t>(y);
         for (int x=0; x < width; x++) {
             if (ptrClass[x] != class_id)
                 continue;
 
-            cv::Vec3b color = ptr[x];
+            cv::Vec3f color = ptr[x];
             cv::Mat scaled = cv::Mat(3, 1, CV_64FC1, cv::Scalar(0));
-            scaled.at<double>(0) = color[0] / 255.0f;
-            scaled.at<double>(1) = color[1] / 255.0f;
-            scaled.at<double>(2) = color[2] / 255.0f;
+            scaled.at<double>(0) = color[0];
+            scaled.at<double>(1) = color[1];
+            scaled.at<double>(2) = color[2];
 
             mean += scaled;
             cov = cov + (scaled * scaled.t());
@@ -124,13 +125,13 @@ void GetClassMeanCov(cv::Mat img, cv::Mat classes, color_node *node)
     return;
 }
 
-void PartitionClass(cv::Mat img, cv::Mat classes, uchar nextid, color_node *node) {
+void PartitionClass(cv::Mat img, cv::Mat classes, char16_t nextid, color_node *node) {
     const int width = img.cols;
     const int height = img.rows;
     const int class_id = node->class_id;
 
-    const uchar new_id_left = nextid;
-    const uchar new_id_right = nextid + 1;
+    const int new_id_left = nextid;
+    const int new_id_right = nextid + 1;
 
     cv::Mat mean = node->mean;
     cv::Mat cov = node->cov;
@@ -148,20 +149,20 @@ void PartitionClass(cv::Mat img, cv::Mat classes, uchar nextid, color_node *node
 
     // start out with average color
     for (int y = 0; y < height; y++) {
-        cv::Vec3b* ptr = img.ptr<cv::Vec3b>(y);
-        uchar* ptr_class = classes.ptr<uchar>(y);
+        cv::Vec3f* ptr = img.ptr<cv::Vec3f>(y);
+        char16_t* ptr_class = classes.ptr<char16_t>(y);
         for (int x = 0; x < width; x++) {
             if (ptr_class[x] != class_id)
                 continue;
 
-            cv::Vec3b color = ptr[x];
+            cv::Vec3f color = ptr[x];
             cv::Mat scaled = cv::Mat(3, 1,
                                   CV_64FC1,
                                   cv::Scalar(0));
 
-            scaled.at<double>(0) = color[0] / 255.0f;
-            scaled.at<double>(1) = color[1] / 255.0f;
-            scaled.at<double>(2) = color[2] / 255.0f;
+            scaled.at<double>(0) = color[0];
+            scaled.at<double>(1) = color[1];
+            scaled.at<double>(2) = color[2];
 
             cv::Mat this_value = eig * scaled;
 
@@ -180,52 +181,20 @@ cv::Mat GetQuantizedImage(cv::Mat classes, color_node *root) {
 
     const int height = classes.rows;
     const int width = classes.cols;
-    cv::Mat ret(height, width, CV_8UC3, cv::Scalar(0));
+    cv::Mat ret(height, width, CV_32FC3, cv::Scalar(0));
 
     for (int y = 0; y < height; y++) {
-        uchar *ptr_class = classes.ptr<uchar>(y);
-        cv::Vec3b *ptr = ret.ptr<cv::Vec3b>(y);
+        char16_t *ptr_class = classes.ptr<char16_t>(y);
+        cv::Vec3f *ptr = ret.ptr<cv::Vec3f>(y);
         for (int x = 0; x < width; x++) {
-            uchar pixel_class = ptr_class[x];
+            char16_t pixel_class = ptr_class[x];
             for (unsigned int i = 0; i < leaves.size(); i++) {
                 if (leaves[i]->class_id == pixel_class) {
-                    ptr[x] = cv::Vec3b(leaves[i]->mean.at<double>(0) * 255,
-                                       leaves[i]->mean.at<double>(1) * 255,
-                                       leaves[i]->mean.at<double>(2) * 255);
+                    ptr[x] = cv::Vec3f(leaves[i]->mean.at<double>(0),
+                                       leaves[i]->mean.at<double>(1),
+                                       leaves[i]->mean.at<double>(2));
                 }
             }
-        }
-    }
-
-    return ret;
-}
-
-cv::Mat GetClassificationImage(cv::Mat classes) {
-    const int height = classes.rows;
-    const int width = classes.cols;
-
-    const int max_color_count = 12;
-    cv::Vec3b *palette = new cv::Vec3b[max_color_count];
-    palette[0]  = cv::Vec3b(  0,   0,   0); // black
-    palette[1]  = cv::Vec3b(255,   0,   0); // blue
-    palette[2]  = cv::Vec3b(  0, 255,   0); // green
-    palette[3]  = cv::Vec3b(  0,   0, 255); // red
-    palette[4]  = cv::Vec3b(255, 255,   0); // cyan
-    palette[5]  = cv::Vec3b(  0, 255, 255); // yellow
-    palette[6]  = cv::Vec3b(255,   0, 255); // magenta
-    palette[7]  = cv::Vec3b(128, 128, 128); // gray
-    palette[8]  = cv::Vec3b(128, 255, 128); // darker green
-    palette[9]  = cv::Vec3b( 64,  64,  64); // darker gray
-    palette[10] = cv::Vec3b(255, 128, 128); // darker blue
-    palette[11] = cv::Vec3b(128, 128, 255); // darker red
-
-    cv::Mat ret = cv::Mat(height, width, CV_8UC3, cv::Scalar(0, 0, 0));
-    for (int y = 0; y < height; y++) {
-        cv::Vec3b *ptr = ret.ptr<cv::Vec3b>(y);
-        uchar *ptr_class = classes.ptr<uchar>(y);
-        for (int x = 0;x < width; x++) {
-            int color = ptr_class[x];
-            ptr[x] = palette[color];
         }
     }
 
@@ -264,12 +233,12 @@ color_node* GetMaxEigenValueNode(color_node *current) {
     return ret;
 }
 
-std::vector<cv::Vec3b> DominantColorsEigen(const cv::Mat &img, const int &nb_colors, cv::Mat *quantized)
+std::vector<cv::Vec3f> DominantColorsEigenCIELab(const cv::Mat &img, const int &nb_colors, cv::Mat &quantized) // Eigen algorithm
 {
     const int width = img.cols;
     const int height = img.rows;
 
-    cv::Mat classes = cv::Mat(height, width, CV_8UC1, cv::Scalar(1));
+    cv::Mat classes = cv::Mat(height, width, CV_16UC1, cv::Scalar(1));
     color_node *root = new color_node();
 
     root->class_id = 1;
@@ -286,17 +255,16 @@ std::vector<cv::Vec3b> DominantColorsEigen(const cv::Mat &img, const int &nb_col
         GetClassMeanCov(img, classes, next->right);
     }
 
-    std::vector<cv::Vec3b> colors = GetDominantColors(root);
-
-    *quantized = GetQuantizedImage(classes, root);
-    //*classification = GetClassificationImage(classes);
-
+    std::vector<cv::Vec3f> colors = GetDominantColors(root);
+    quantized = GetQuantizedImage(classes, root);
     return colors;
 }
 
-/////////////////// K_means algorithm //////////////////////
+////////////////////////////////////////////////////////////
+////                K_means algorithm
+////////////////////////////////////////////////////////////
 
-cv::Mat DominantColorsKMeans(const cv::Mat &source, const int &nb_clusters, cv::Mat1f *dominant_colors)
+cv::Mat DominantColorsKMeansRGB(const cv::Mat &source, const int &nb_clusters, cv::Mat1f &dominant_colors) // Dominant colors with K-means from RGB image
 {
     const unsigned int data_size = source.rows * source.cols; // size of source
     cv::Mat data = source.reshape(1, data_size); // reshape the source to a single line
@@ -316,354 +284,252 @@ cv::Mat DominantColorsKMeans(const cv::Mat &source, const int &nb_clusters, cv::
     cv::Mat output_image = data.reshape(3, source.rows); // RGB channels needed for output
     output_image.convertTo(output_image, CV_8UC3); // BGR image
 
-    *dominant_colors = colors; // save colors clusters
+    dominant_colors = colors; // save colors clusters
 
     return output_image; // return quantized image
 }
 
-/////////////////// Color spaces conversions //////////////////////
-//// All values are in range [0..1]
-/// Apart LAB : L [0..100], a [-127..127], b [-127..127]
-
-void SpectralColorToRGB(const float &L, float &R, float &G, float &B) // RGB <0,1> <- lambda l <400,700> [nm]
+cv::Mat DominantColorsKMeansCIELAB(const cv::Mat &source, const int &nb_clusters, cv::Mat1f &dominant_colors) // Dominant colors with K-means in CIELAB space from RGB image
 {
-    double t;
-    R = 0.0;
-    G = 0.0; B = 0.0;
+    cv::Mat temp = ImgRGBtoLab(source);
 
-         if ((L >= 400.0)&&(L<410.0)) { t = (L-400.0)/(410.0-400.0); R =     +(0.33*t)-(0.20*t*t); }
-    else if ((L >= 410.0)&&(L<475.0)) { t = (L-410.0)/(475.0-410.0); R = 0.14         -(0.13*t*t); }
-    else if ((L >= 545.0)&&(L<595.0)) { t = (L-545.0)/(595.0-545.0); R =     +(1.98*t)-(     t*t); }
-    else if ((L >= 595.0)&&(L<650.0)) { t = (L-595.0)/(650.0-595.0); R = 0.98+(0.06*t)-(0.40*t*t); }
-    else if ((L >= 650.0)&&(L<700.0)) { t = (L-650.0)/(700.0-650.0); R = 0.65-(0.84*t)+(0.20*t*t); }
-         if ((L >= 415.0)&&(L<475.0)) { t = (L-415.0)/(475.0-415.0); G =              +(0.80*t*t); }
-    else if ((L >= 475.0)&&(L<590.0)) { t = (L-475.0)/(590.0-475.0); G = 0.8 +(0.76*t)-(0.80*t*t); }
-    else if ((L >= 585.0)&&(L<639.0)) { t = (L-585.0)/(639.0-585.0); G = 0.84-(0.84*t)           ; }
-         if ((L >= 400.0)&&(L<475.0)) { t = (L-400.0)/(475.0-400.0); B =     +(2.20*t)-(1.50*t*t); }
-    else if ((L >= 475.0)&&(L<560.0)) { t = (L-475.0)/(560.0-475.0); B = 0.7 -(     t)+(0.30*t*t); }
+    const unsigned int data_size = source.rows * source.cols; // size of source
+    cv::Mat1f data = temp.reshape(1, data_size); // reshape CIELab data to a single line
+
+    std::vector<int> indices; // color clusters
+    cv::Mat1f colors; // colors output
+    cv::kmeans(data, nb_clusters, indices, cv::TermCriteria(cv::TermCriteria::EPS+cv::TermCriteria::COUNT, 100, 1.0),
+               100, cv::KMEANS_PP_CENTERS, colors); // k-means on CIELab data, ending criterias : 100 iterations and epsilon=1.0
+
+    for (unsigned int i = 0 ; i < data_size ; i++ ) { // replace colors in CIELab data
+        data.at<float>(i, 0) = colors(indices[i], 0);
+        data.at<float>(i, 1) = colors(indices[i], 1);
+        data.at<float>(i, 2) = colors(indices[i], 2);
+    }
+
+    cv::Mat output_image = data.reshape(3, source.rows); // 3 channels needed for output
+    cv::Mat output_temp = ImgLabToRGB(output_image);
+
+    dominant_colors = colors; // save colors clusters in CIELab color space (all values in range [0..1])
+    return output_temp; // return quantized image
 }
 
-//// HSV
-//// see https://en.wikipedia.org/wiki/HSL_and_HSV
+////////////////////////////////////////////////////////////
+////                  Mean-Shift algorithm
+////////////////////////////////////////////////////////////
 
-void RGBtoHSV(const float &R, const float &G, const float &B, float& H, float& S, float &V, float &C) // convert RGB value to HSV+C
+// adpated from Bingyang Liu to directly work in CIELab color space
+// source : https://github.com/bbbbyang/Mean-Shift-Segmentation
+
+// Definitions
+#define MS_MAX_NUM_CONVERGENCE_STEPS	5										// up to 10 steps are for convergence
+#define MS_MEAN_SHIFT_TOL_COLOR			0.3										// minimum mean color shift change
+#define MS_MEAN_SHIFT_TOL_SPATIAL		0.3										// minimum mean spatial shift change
+const int dxdy[][2] = {{-1,-1},{-1,0},{-1,1},{0,-1},{0,1},{1,-1},{1,0},{1,1}};	// region growing
+
+Point5D::Point5D() // Constructor
 {
-    float cmax = max(max(R, G), B);    // maximum of RGB
-    float cmin = min(min(R, G), B);    // minimum of RGB
-    float diff = cmax-cmin;       // diff of cmax and cmin.
-
-    if (diff > 0) { // not particular case of diff = 0 -> find if R G or B is dominant
-        if (cmax == R) { // R is dominant
-            H = 60 * (fmod(((G - B) / diff), 6)); // compute H
-        }
-        else if (cmax == G) { // G is dominant
-            H = 60 * (((B - R) / diff) + 2); // compute H
-        }
-        else if (cmax == B) { // B is dominant
-            H = 60 * (((R - G) / diff) + 4); // compute H
-        }
-
-        if (cmax > 0) { // compute S
-            S = diff / cmax;
-        }
-        else {
-            S = 0;
-        }
-
-        V = cmax; // compute V
-    }
-    else { // particular case -> H = red (convention)
-        H = 0;
-        S = 0;
-        V = cmax;
-    }
-
-    if (H < 0) { // H must be in [0..360] range
-        H += 360;
-    }
-    if (H >= 360) {
-        H -= 360;
-    }
-
-    // Final results are in range [0..1]
-    H = H / 360.0f; // was in degrees
-    C = diff; // chroma
+    x = -1;
+    y = -1;
 }
 
-void HSVtoRGB(const float &H, const float &S, const float &V, float &R, float &G, float &B) { // convert HSV value to RGB
-  float C = V * S; // chroma
-  float HPrime = fmod(H / 60.0f, 6); // dominant 6th part of H - H must be in [0..360]
-  float X = C * (1 - fabs(fmod(HPrime, 2) - 1));
-  float M = V - C;
-
-  // for each part its calculus
-  if (0 <= HPrime && HPrime < 1) {
-    R = C;
-    G = X;
-    B = 0;
-  }
-  else if (1 <= HPrime && HPrime < 2) {
-    R = X;
-    G = C;
-    B = 0;
-  }
-  else if (2 <= HPrime && HPrime < 3) {
-    R = 0;
-    G = C;
-    B = X;
-  }
-  else if (3 <= HPrime && HPrime < 4) {
-    R = 0;
-    G = X;
-    B = C;
-  }
-  else if (4 <= HPrime && HPrime < 5) {
-    R = X;
-    G = 0;
-    B = C;
-  }
-  else if(5 <= HPrime && HPrime < 6) {
-    R = C;
-    G = 0;
-    B = X;
-  } else {
-    R = 0;
-    G = 0;
-    B = 0;
-  }
-
-  R += M; // final results
-  G += M;
-  B += M;
+Point5D::~Point5D() // Destructor
+{
 }
 
-//// HSL
-//// see https://en.wikipedia.org/wiki/HSL_and_HSV
-
-void RGBtoHSL(const float &R, const float &G, const float &B, float &H, float &S, float &L, float &C) // convert RGB value to HSL
+void Point5D::MSPoint5DAccum(const Point5D &Pt) // Accumulate points
 {
-    float cmax = max(max(R, G), B);    // maximum of RGB
-    float cmin = min(min(R, G), B);    // minimum of RGB
-    float diff = cmax - cmin;       // diff of cmax and cmin.
-
-    L = (cmax + cmin) / 2.0f;
-
-    if(cmax == cmin) // particular case : color is a gray
-    {
-        S = 0;
-        H = 0;
-    }
-    else
-    {
-        if (L < .50) // result depends on Lightness
-        {
-            S = diff / (cmax + cmin); // compute S
-        }
-        else
-        {
-            S = diff / (2 - cmax - cmin); // compute S
-        }
-
-        // which is the dominant in R, G, B
-        if (cmax == R) // red
-        {
-            H = (G - B) / diff; // compute H
-        }
-        if (cmax == G) // green
-        {
-            H = 2 + (B - R) / diff; // compute H
-        }
-        if (cmax == B) // blue
-        {
-            H = 4 + (R - G) / diff; // compute H
-        }
-    }
-
-    H = H * 60; // H in degrees
-
-    if (H < 0) // H in [0..360]
-        H += 360;
-    if (H >= 360)
-        H -= 360;
-
-    // Final results in range [0..1]
-    H = H / 360.0f; // was in degrees
-    C = diff; // Chroma
+    x += Pt.x;
+    y += Pt.y;
+    l += Pt.l;
+    a += Pt.a;
+    b += Pt.b;
 }
 
-float HueToRGB(const float &v1, const float &v2, const float &H) // Convert H to R, G or B value for HSLtoRGB function
+void Point5D::MSPoint5DCopy(const Point5D &Pt) // Copy a point
 {
-    float vH = H;
-
-    if (vH < 0) vH += 1; // H must be in range [0..1]
-    if (vH > 1) vH -= 1;
-
-    if ((6 * vH) < 1) // which component (R, G, B) to compute ?
-        return v1 + (v2 - v1) * 6.0f * vH;
-    if ((2 * vH) < 1 )
-        return v2;
-    if ((3 * vH) < 2 )
-        return (v1 + (v2 - v1) * ((2.0f / 3.0f) - vH) * 6.0f);
-    return (v1);
+    x = Pt.x;
+    y = Pt.y;
+    l = Pt.l;
+    a = Pt.a;
+    b = Pt.b;
 }
 
-void HSLtoRGB(const float &H, const float &S, const float &L, float &R, float &G, float &B) // convert HSL to RGB value - H is in degrees
+float Point5D::MSPoint5DColorDistance(const Point5D &Pt) // Color space distance between two points
 {
-    if ( S == 0 ) // color is a gray
-    {
-        R = L;
-        G = L;
-        B = L;
-    }
-    else {
-        float var_1, var_2;
-        if (L < 0.5) // Result depends on Luminance
-            var_2 = L * (1.0f + S);
-        else
-            var_2 = (L + S) - (S * L);
+    return sqrtf(powf(l * 100.0 - Pt.l * 100.0, 2) + powf(a * 127.0 - Pt.a * 127.0, 2) + powf(b * 127.0 - Pt.b * 127.0, 2)); // CIE76 color difference - not very good but fast
+    //return distanceCIEDE2000LAB(Pt.l, Pt.a, Pt.b, l, a, b); // takes too much time
+}
 
-        var_1 = 2.0f * L - var_2; // first component based on Luminance
+float Point5D::MSPoint5DSpatialDistance(const Point5D &Pt) // Spatial space distance between two points
+{
+    return sqrtf(powf(x - Pt.x, 2) + powf(y - Pt.y, 2)); // euclidian distance
+}
 
-        R = HueToRGB(var_1, var_2, H / 360.0f + (1.0f / 3.0f)); // compute R, G, B
-        G = HueToRGB(var_1, var_2, H / 360.0f);
-        B = HueToRGB(var_1, var_2, H / 360.0f - (1.0f / 3.0f));
+void Point5D::MSPoint5DScale(const float scale) // Scale point
+{
+    x *= scale;
+    y *= scale;
+    l *= scale;
+    a *= scale;
+    b *= scale;
+}
+
+void Point5D::MSPOint5DSet(const float &px, const float &py, const float &pl, const float &pa, const float &pb) // Set point value
+{
+    x = px;
+    y = py;
+    l = pl;
+    a = pa;
+    b = pb;
+}
+
+MeanShift::MeanShift(const float &s, const float &r) // Constructor for spatial bandwidth and color bandwidth
+{
+    hs = s;
+    hr = r;
+}
+
+void MeanShift::MeanShiftFilteringCIELab(cv::Mat &Img) // Mean Shift Filtering
+{
+    int ROWS = Img.rows;			// Get row number
+    int COLS = Img.cols;			// Get column number
+    split(Img, IMGChannels);		// Split Lab color
+
+    Point5D PtCur;					// Current point
+    Point5D PtPrev;					// Previous point
+    Point5D PtSum;					// Sum vector of the shift vector
+    Point5D Pt;
+    int Left;						// Left boundary
+    int Right;						// Right boundary
+    int Top;						// Top boundary
+    int Bottom;						// Bottom boundary
+    int NumPts;						// number of points in a hypersphere
+    int step;
+
+    for(int i = 0; i < ROWS; i++) {
+        for(int j = 0; j < COLS; j++) {
+            Left = (j - hs) > 0 ? (j - hs) : 0;						// Get Left boundary of the filter
+            Right = (j + hs) < COLS ? (j + hs) : COLS;				// Get Right boundary of the filter
+            Top = (i - hs) > 0 ? (i - hs) : 0;						// Get Top boundary of the filter
+            Bottom = (i + hs) < ROWS ? (i + hs) : ROWS;				// Get Bottom boundary of the filter
+            PtCur.MSPOint5DSet(i, j, (float)IMGChannels[0].at<float>(i, j), (float)IMGChannels[1].at<float>(i, j), (float)IMGChannels[2].at<float>(i, j)); // Set current point
+            step = 0;				// count the times
+            do {
+                PtPrev.MSPoint5DCopy(PtCur);						// Set the original point and previous one
+                PtSum.MSPOint5DSet(0, 0, 0, 0, 0);					// Initial Sum vector
+                NumPts = 0;											// Count number of points that satisfy the bandwidths
+                for(int hx = Top; hx < Bottom; hx++) {
+                    for(int hy = Left; hy < Right; hy++) {
+                        Pt.MSPOint5DSet(hx, hy, (float)IMGChannels[0].at<float>(hx, hy), (float)IMGChannels[1].at<float>(hx, hy), (float)IMGChannels[2].at<float>(hx, hy)); // Set point in the spatial bandwidth
+                        if (Pt.MSPoint5DColorDistance(PtCur) < hr) { // Check it satisfied color bandwidth or not
+                            PtSum.MSPoint5DAccum(Pt);				// Accumulate the point to Sum vector
+                            NumPts++;								// Count
+                        }
+                    }
+                }
+                PtSum.MSPoint5DScale(1.0 / NumPts);					// Scale Sum vector to average vector
+                PtCur.MSPoint5DCopy(PtSum);							// Get new origin point
+                step++;												// One time end
+            } while((PtCur.MSPoint5DColorDistance(PtPrev) > MS_MEAN_SHIFT_TOL_COLOR) && (PtCur.MSPoint5DSpatialDistance(PtPrev) > MS_MEAN_SHIFT_TOL_SPATIAL)
+                        && (step < MS_MAX_NUM_CONVERGENCE_STEPS)); // filter iteration to end
+
+            Img.at<cv::Vec3f>(i, j) = cv::Vec3f(PtCur.l, PtCur.a, PtCur.b); // Copy result to image
+        }
     }
 }
 
-//// HWB
-//// see https://en.wikipedia.org/wiki/HWB_color_model
-
-void HSVtoHWB(const float &h, const float &s, const float &v, float &H, float &W, float &B) // convert HSV to HWB
+void MeanShift::MeanShiftSegmentationCIELab(cv::Mat &Img) // Mean Shift Segmentation
 {
-    // calculus is simple ! There is a direct relation
-    H = h;
-    W = (1.0f - s) * v;
-    B = 1.0f - v;
-}
+    int ROWS = Img.rows;			// Get row number
+    int COLS = Img.cols;			// Get column number
 
-void RGBToHWB(const float &r, const float &g, const float &b, float &H, float &W, float &B) // convert RGB to HWB
-{
-    float h, s, v, c;
-    RGBtoHSV(r, g, b, h, s, v, c); // first find HSV
-    HSVtoHWB(h, s, v, H, W, B); // then convert HSV to HWB
-}
+    Point5D PtCur;                  // Current point
+    Point5D Pt;
 
-void HWBtoHSV(const float &h, const float &w, const float &b, float &H, float &S, float &V) // convert HWB to HSV
-{
-    // calculus is simple ! There is a direct relation
-    H = h;
-    S = 1 - (w / (1.0f - b));
-    V = 1 - b;
-}
+    int label = -1;					// Label number
+    float *Mode = new float [ROWS * COLS * 3];					// Store the Lab color of each region
+    int *MemberModeCount = new int [ROWS * COLS];				// Store the number of each region
+    memset(MemberModeCount, 0, ROWS * COLS * sizeof(int));		// Initialize the MemberModeCount
+    split(Img, IMGChannels); // split image
 
-void HWBtoRGB(const float &h, const float &w, const float &b, float &R, float &G, float &B) // convert HWB to RGB
-{
-    float H, S, V;
-    HWBtoHSV(h, w, b, H, S, V); // first convert to HSV
-    HSVtoRGB(H, S, V, R, G, B); // then to RGB
-}
+    // Label for each point
+    int **Labels = new int *[ROWS];
+    for(int i = 0; i < ROWS; i++)
+        Labels[i] = new int [COLS];
 
-//// XYZ and LAB
-//// See https://en.wikipedia.org/wiki/CIE_1931_color_space
-//// see https://fr.wikipedia.org/wiki/CIE_XYZ for XYZ
-//// see https://en.wikipedia.org/wiki/CIELAB_color_space for LAB
+    // Initialization
+    for(int i = 0; i < ROWS; i++) {
+        for(int j = 0; j < COLS; j++) {
+            Labels[i][j] = -1;
+        }
+    }
 
-void RGBtoXYZ(const float &R, const float &G, const float &B, float &X, float &Y, float &Z) // convert RGB value to CIE XYZ
-{
-    float r, g, b;
+    for(int i = 0; i < ROWS; i++) {
+        for(int j = 0; j < COLS; j ++) {
+            if (Labels[i][j] < 0) { // If the point is not being labeled
+                Labels[i][j] = ++label;		// Give it a new label number
+                PtCur.MSPOint5DSet(i, j, (float)IMGChannels[0].at<float>(i, j), (float)IMGChannels[1].at<float>(i, j), (float)IMGChannels[2].at<float>(i, j)); // Get the point
 
-    // Gamma correction - conversion to linear space
-    if (R > 0.04045)
-        r = powf((R + 0.055f) / 1.055f, 2.4f) * 100.0f;
-    else
-        r = R / 12.92f * 100.0f;
-    if (G > 0.04045)
-        g = powf((G + 0.055f) / 1.055f, 2.4f) * 100.0f;
-    else
-        g = G / 12.92f * 100.0f;
-    if (B > 0.04045)
-        b = powf((B + 0.055f) / 1.055f, 2.4f) * 100.0f;
-    else
-        b = B / 12.92f * 100.0f;
+                // Store each value of Lab
+                Mode[label * 3 + 0] = PtCur.l;
+                Mode[label * 3 + 1] = PtCur.a;
+                Mode[label * 3 + 2] = PtCur.b;
 
-    // Gammut conversion : Observer= 2° and Illuminant= D65
-    X = r * 0.4124f + g * 0.3576f + b * 0.1805f;
-    Y = r * 0.2126f + g * 0.7152f + b * 0.0722f;
-    Z = r * 0.0193f + g * 0.1192f + b * 0.9505f;
+                // Region Growing 8 Neighbours
+                std::vector<Point5D> NeighbourPoints;
+                NeighbourPoints.push_back(PtCur);
+                while(!NeighbourPoints.empty()) {
+                    Pt = NeighbourPoints.back();
+                    NeighbourPoints.pop_back();
 
-    //  Illuminant D65 with normalization Y = 100
-    X = X / 95.047f;         // ref_X =  95.047
-    Y = Y / 100.0f;          // ref_Y = 100.000
-    Z = Z / 108.883f;        // ref_Z = 108.883
-}
+                    // Get 8 neighbours
+                    for(int k = 0; k < 8; k++) {
+                        int hx = Pt.x + dxdy[k][0];
+                        int hy = Pt.y + dxdy[k][1];
+                        if ((hx >= 0) && (hy >= 0) && (hx < ROWS) && (hy < COLS) && (Labels[hx][hy] < 0)) {
+                            Point5D P;
+                            P.MSPOint5DSet(hx, hy, (float)IMGChannels[0].at<float>(hx, hy), (float)IMGChannels[1].at<float>(hx, hy), (float)IMGChannels[2].at<float>(hx, hy));
 
-void XYZtoLAB(const float &X, const float &Y, const float &Z, float &L, float &A, float &B) // convert CIE XYZ value to CIE LAB
-{
-    float x = X;
-    float y = Y;
-    float z = Z;
+                            // Check the color
+                            if (PtCur.MSPoint5DColorDistance(P) < hr) { // Satisfied the color bandwidth
+                                Labels[hx][hy] = label;				// Give the same label
+                                NeighbourPoints.push_back(P);		// Push it into stack
+                                MemberModeCount[label]++;			// This region number plus one
+                                // Sum all color in same region
+                                Mode[label * 3 + 0] += P.l;
+                                Mode[label * 3 + 1] += P.a;
+                                Mode[label * 3 + 2] += P.b;
+                            }
+                        }
+                    }
+                }
+                MemberModeCount[label]++;							// Count the point itself
+                Mode[label * 3 + 0] /= MemberModeCount[label];		// Get average color
+                Mode[label * 3 + 1] /= MemberModeCount[label];
+                Mode[label * 3 + 2] /= MemberModeCount[label];
+            }
+        }
+    }
 
-    if (x > 0.008856) // two-part equation
-        x = powf(x, 1.0f / 3.0f);
-    else
-        x = (7.787f * x) + (16.0f / 116.0f);
-    if (y > 0.008856)
-        y = powf(y, 1.0f / 3.0f);
-    else
-        y = (7.787f * y) + (16.0f / 116.0f);
-    if (z > 0.008856)
-        z = powf(z, 1.0f / 3.0f);
-    else
-        z = (7.787f * z) + (16.0f / 116.0f);
+    // Get result image from Mode array
+    for(int i = 0; i < ROWS; i++) {
+        for(int j = 0; j < COLS; j++) {
+            label = Labels[i][j];
+            float l = Mode[label * 3 + 0];
+            float a = Mode[label * 3 + 1];
+            float b = Mode[label * 3 + 2];
+            Point5D Pixel;
+            Pixel.MSPOint5DSet(i, j, l, a, b);
+            Img.at<cv::Vec3f>(i, j) = cv::Vec3f(Pixel.l, Pixel.a, Pixel.b);
+        }
+    }
 
-    L = 116.0f * y - 16; // final result
-    A = 500.0f * (x - y);
-    B = 200.0f * (y - z);
-}
+// Clean Memory
+    delete[] Mode;
+    delete[] MemberModeCount;
 
-void LABtoXYZ(const float &L, const float &a, const float &b, float &X, float &Y, float &Z) // convert CIE LAB to CIE XYZ
-{
-    // it is exactly the reverse of XYZ to LAB
-    Y = (L + 16.0f) / 116.0f;
-    X = a / 500.0f + Y;
-    Z = Y - b / 200.0f;
-
-    if (powf(X,3) > 0.008856)
-      X = 0.95047f * powf(X,3);
-    else
-      X = 0.95047f * (X - 16.0f / 116.0f) / 7.787f;
-
-    if (powf(Y,3) > 0.008856)
-      Y = 1.0f * powf(Y,3);
-    else
-      Y = 1.0f * (Y - 16.0f / 116.0f) / 7.787f;
-
-    if (powf(Z,3) > 0.008856)
-      Z = 1.08883f * powf(Z,3);
-    else
-      Z = 1.08883f * (Z - 16.0f / 116.0f) / 7.787f;
-}
-
-void XYZtoRGB(const float &X, const float &Y, const float &Z, float &R, float &G, float &B) // convert from XYZ to RGB
-{
-    // Observer. = 2°, Illuminant = D65
-    R = X *  3.2406f + Y * -1.5372f + Z * -0.4986f;
-    G = X * -0.9689f + Y *  1.8758f + Z *  0.0415f;
-    B = X *  0.0557f + Y * -0.2040f + Z *  1.0570f;
-
-    // Gamma profile
-    if (R > 0.0031308)
-        R = 1.055f * powf(R, 1.0f/2.4f) - 0.055f;
-    else
-        R = R * 12.92f;
-
-    if (G > 0.0031308)
-        G = 1.055f * powf(G, 1.0f/2.4f) - 0.055f;
-    else
-        G = G * 12.92f;
-
-    if (B > 0.0031308)
-        B = 1.055f * powf(B, 1.0f/2.4f) - 0.055f;
-    else
-        B = B * 12.92f;
+    for(int i = 0; i < ROWS; i++)
+        delete[] Labels[i];
+    delete[] Labels;
 }

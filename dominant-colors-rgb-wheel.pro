@@ -4,7 +4,7 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#                v0.1 - 2019/10/24
+#                v1.0 - 2019/01/11
 #
 #-------------------------------------------------
 
@@ -15,18 +15,22 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = dominant-colors-rgb-wheel
 TEMPLATE = app
 
-INCLUDEPATH += /usr/local/include/opencv2
+INCLUDEPATH += /usr/local/include/opencv4/opencv2
 
-LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui
+LIBS += -L/usr/local/lib
 
 SOURCES += main.cpp\
         mainwindow.cpp \
         mat-image-tools.cpp \
-        dominant-colors.cpp
+        dominant-colors.cpp \
+        color-spaces.cpp \
+        angles.cpp
 
 HEADERS  += mainwindow.h \
             mat-image-tools.h \
-            dominant-colors.h
+            dominant-colors.h \
+            color-spaces.h \
+            angles.h
 
 FORMS    += mainwindow.ui
 
@@ -34,7 +38,7 @@ FORMS    += mainwindow.ui
 CONFIG += link_pkgconfig
 PKGCONFIG += opencv4
 
-QMAKE_CXXFLAGS += -std=c++11
-
 # icons
 RESOURCES += resources.qrc
+
+CONFIG += c++11
