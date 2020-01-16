@@ -68,7 +68,7 @@ This software should also work under Microsoft Windows, with adjustments: if you
 
 ### FINDING DOMINANT COLORS
 
-![Screenshot - Image](screenshots/screenshot-quantize.jpg?raw=true)
+![Screenshot - Quantize](screenshots/screenshot-quantize.jpg?raw=true)
 
 * How many dominant colors do you want? Choose wisely, bigger values take greater time to compute
 
@@ -80,7 +80,7 @@ This software should also work under Microsoft Windows, with adjustments: if you
 
 * Click "Analyze" to finish: you end up with an updated Color Wheel, a Quantized image and a Palette. The elapsed time is shown in the LCD display
 
-![Screenshot - Image](screenshots/screenshot-quantized.jpg?raw=true)
+![Screenshot - Quantized](screenshots/screenshot-quantized.jpg?raw=true)
 
 * Filters:
     * "Filter grays":
@@ -90,13 +90,14 @@ This software should also work under Microsoft Windows, with adjustments: if you
         * filtered values are shown in black color on the Quantized image
     * "Regroup" filter:
         * it helps clustering scattered similar color values
-        * for example if you obtain 3 green hues near each others, it can be interesting to merge them in one big color value in the Palette
-        * two parameters are used: "angle" is the Hue difference on the color wheel, and "distance" is the CIELab color distance between two color values
+        * for example if you obtain 3 green hues near each other, it can be interesting to merge them in one big color value in the Palette
+        * two parameters are used: "angle" is the Hue difference (in degrees) on the color wheel, and "distance" is the CIELab color distance between two color values
+        * example without and with Regroup filter:
         
 ![Screenshot - Regroup off](screenshots/screenshot-regroup-off.jpg?raw=true)
 ![Screenshot - Regroup on](screenshots/screenshot-regroup-on.jpg?raw=true)        
         
-    * "Filter < x%": 
+* "Filter < x%": 
         * filter out colors representing less than x% of the image
         * it helps cleaning the Color Wheel of non-significant values
 
@@ -107,7 +108,7 @@ This software should also work under Microsoft Windows, with adjustments: if you
 
 ### COLOR WHEEL
 
-![Screenshot - Image](screenshots/screenshot-color-wheel.jpg?raw=true)
+![Screenshot - Color Wheel](screenshots/screenshot-color-wheel.jpg?raw=true)
 
 * The Color Wheel is where the dominant colors of the image are displayed after using the "Quantize" button:
     * the dominant colors are shown using color disks, the size indicating the percentage of use in the image
@@ -126,7 +127,7 @@ This software should also work under Microsoft Windows, with adjustments: if you
 
 ### PALETTE
 
-![Screenshot - Image](screenshots/screenshot-palette.jpg?raw=true)
+![Screenshot - Palette](screenshots/screenshot-palette.jpg?raw=true)
 
 * Another feature is the Palette: it show all the dominant colors, and their proportional percentage in the Quantized image
 
@@ -143,19 +144,19 @@ This software should also work under Microsoft Windows, with adjustments: if you
 * If you want to keep the results, click on the "Save results" button on the Color Wheel. They will be saved with the provided file name + suffixes:
 	* Palette: filename-palette.png
 	* Color Wheel: filename-color-wheel.png
-	* Quantized image: filename--quantized.png
+	* Quantized image: filename-quantized.png
 	* CSV file of palette: filename-palette.csv - RGB values (decimal and hexadecimal) and percentage are saved
 	* Several wide-used palette formats, such as Photoshop, Paintshop Pro and Corel Draw
 
 ### ANALYZE
-![Screenshot - Image](screenshots/screenshot-analyze.jpg?raw=true)
+![Screenshot - Analyze](screenshots/screenshot-analyze.jpg?raw=true)
 
 * This is the big bonus of this version! Just click on the "Analyze" button to get interesting information on:
     * Color schemes:
         * find out how your colors are distributed, which schemes are used
         * the big buttons, when lighted, show if the image has values that are complementary, triadic, etc. The color bar indicates which colored lines are drawn on the Color wheel, which are drawn between color disks or on the outer circle
         * two options: 
-            * "on borders": the lines are drawn between the colored disks. With this option they are drawn on the borders of the wheel
+            * "on borders": the lines are normally drawn between the colored disks. With this option they are drawn on the borders of the wheel
             * "only 12 hues": lines are aligned on the nearest color on the outer circle of the wheel
         * list of color schemes:
             * complementary (red lines): opposite colors, high contrast, vibrant look
@@ -180,19 +181,20 @@ This software should also work under Microsoft Windows, with adjustments: if you
             * cold: 150 to 270° (blues)
     * Perceived brightness:
         * human eyes perceive brightness of a color in a different way than pure computed values
-        * the percentage shown is the global perceived brightness of the image 
+        * the percentage shown is the global perceived brightness of the image
+    * "Min. color" parameter: only consider color values representing more than x% of the Quantized image
 
 ### ACCURACY
 
-![Screenshot - Image](screenshots/screenshot-12-colors-quantized.jpg?raw=true)
+![Screenshot - 12 colors](screenshots/screenshot-12-colors-quantized.jpg?raw=true)
 
 * How efficient are the three algorithms?
     * To check, I just had to test my tool on a 12-colors RGB palette I produced in 5 minutes with Photoshop, with the exact RGB values of the 12 Primary to Tertiary colors
     * First result: all the algorithms produce the same exact 12-colors palette as the source (for Mean-shift with distance and color=1). A perfect match!
 
-![Screenshot - Image](screenshots/screenshot-12-colors-wheel.jpg?raw=true)    
+![Screenshot - 12 colors on wheel](screenshots/screenshot-12-colors-wheel.jpg?raw=true)    
 
-    * With more complex images, the results are a bit different. Here is an example of the same image computed with the algorithms. Order: Eigen vectors, K-Means clustering and Mean-shift clustering
+* With more complex images, the results are a bit different. Here is an example of the same image computed with the algorithms. Order: Eigen vectors, K-Means clustering and Mean-shift clustering
 
 ![Screenshot - compare Eigen](screenshots/screenshot-compare-eigen.jpg?raw=true)
 ![Screenshot - compare K-means](screenshots/screenshot-compare-k-means.jpg?raw=true)
