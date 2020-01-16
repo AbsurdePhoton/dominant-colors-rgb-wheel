@@ -74,7 +74,7 @@ This software should also work under Microsoft Windows, with adjustments: if you
 
 * You have to choose the algorithm first. Three are at your service!
     * All the algorithms now compute in CIELab color space. I coded my own implementation of color conversions, because the ones from OpenCV were not accurate enough (for example loss when converting to CIE XYZ then to CIELab and back to RGB)
-	 * Eigen vectors: the fastest of the three - source: http://aishack.in/tutorials/dominant-color/ - this one was trickier to adapt to work in CIELab, I also unlocked the 256 colors limit
+	 * Eigen vectors: the fastest of the three - source: http://aishack.in/tutorials/dominant-color/ - this one was trickier to adapt to work in CIELab, I also unlocked the 128 colors limit
 	 * K-means: a well-known algorithm to aggregate significant data - source: https://jeanvitor.com/k-means-image-segmentation-opencv/
 	 * Mean-shift: NOT exactly a quantization algorithm, but it reduces colors in an interesting way. It is also a bit destructive for the image with higher parameters values. As the number of computed colors is variable with this algorithm, when you choose the number of colors to quantize, only the N most used colors in the Quantized image are shown in the Palette
 
