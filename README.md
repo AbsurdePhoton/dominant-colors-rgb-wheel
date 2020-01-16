@@ -53,7 +53,7 @@ This software should also work under Microsoft Windows, with adjustments: if you
 
 * Help is available within the GUI, with each element's tooltip. Just hover your mouse
 
-* All is on one window, the tool is more complex than in the previous verions
+* All is on one window, the tool is now more complex than the previous beta version
 
 ### IMAGE
 
@@ -79,6 +79,7 @@ This software should also work under Microsoft Windows, with adjustments: if you
 	 * Mean-shift: NOT exactly a quantization algorithm, but it reduces colors in an interesting way. It is also a bit destructive for the image with higher parameters values. As the number of computed colors is variable with this algorithm, when you choose the number of colors to quantize, only the N most used colors in the Quantized image are shown in the Palette
 
 * Click "Analyze" to finish: you end up with an updated Color Wheel, a Quantized image and a Palette. The elapsed time is shown in the LCD display
+
 ![Screenshot - Image](screenshots/screenshot-quantized.jpg?raw=true)
 
 * Filters:
@@ -86,16 +87,21 @@ This software should also work under Microsoft Windows, with adjustments: if you
         * helps filtering all near non-color values like whites, blacks and grays, to only obtain colors in the Palette and Color wheel
         * "grays" means not only gray values, because black and white are particular grays
         * the blacks, whites and grays parameters are the percentage you want to filter. This percentage is from the distance in CIELab space to the white and black points. For grays the distance is from the "black to white" grayscale
-        * filtered values are shown in black color on the Qunatized image
+        * filtered values are shown in black color on the Quantized image
     * "Regroup" filter:
         * it helps clustering scattered similar color values
         * for example if you obtain 3 green hues near each others, it can be interesting to merge them in one big color value in the Palette
-        * two parameters are used: "angle" is the Hue difference opn the color wheel, and "distance" is the CIELab color distance between two color values
+        * two parameters are used: "angle" is the Hue difference on the color wheel, and "distance" is the CIELab color distance between two color values
+        
+![Screenshot - Regroup off](screenshots/screenshot-regroup-off.jpg?raw=true)
+![Screenshot - Regroup on](screenshots/screenshot-regroup-on.jpg?raw=true)        
+        
     * "Filter < x%": 
         * filter out colors representing less than x% of the image
         * it helps cleaning the Color Wheel of non-significant values
 
 * A good overall advice: try to find the minimum number of colors that roughly represent the source image. If a major color hue is missing, try increasing the number of colors to quantize
+
 ![Screenshot - Advice 1](screenshots/screenshot-quantize-5-colors.jpg?raw=true)
 ![Screenshot - Advice 2](screenshots/screenshot-quantize-12-colors.jpg?raw=true)
 
@@ -183,8 +189,11 @@ This software should also work under Microsoft Windows, with adjustments: if you
 * How efficient are the three algorithms?
     * To check, I just had to test my tool on a 12-colors RGB palette I produced in 5 minutes with Photoshop, with the exact RGB values of the 12 Primary to Tertiary colors
     * First result: all the algorithms produce the same exact 12-colors palette as the source (for Mean-shift with distance and color=1). A perfect match!
+
 ![Screenshot - Image](screenshots/screenshot-12-colors-wheel.jpg?raw=true)    
+
     * With more complex images, the results are a bit different. Here is an example of the same image computed with the algorithms. Order: Eigen vectors, K-Means clustering and Mean-shift clustering
+
 ![Screenshot - compare Eigen](screenshots/screenshot-compare-eigen.jpg?raw=true)
 ![Screenshot - compare K-means](screenshots/screenshot-compare-k-means.jpg?raw=true)
 ![Screenshot - compare Mean-shift](screenshots/screenshot-compare-mean-shift.jpg?raw=true)
