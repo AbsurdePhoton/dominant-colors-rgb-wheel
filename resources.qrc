@@ -14,11 +14,18 @@
   <file>./icons/color-scheme-triadic.png</file>
   <file>./icons/color-scheme-warm-cool.png</file>
   <file>./icons/compute.png</file>
+  <file>./icons/direction-left.png</file>
+  <file>./icons/direction-right.png</file>
   <file>./icons/image.png</file>
   <file>./icons/load.png</file>
   <file>./icons/quit.png</file>
   <file>./icons/reset.png</file>
   <file>./icons/save.png</file>
+  <file>./icons/save-graph.png</file>
+  <file>./icons/save-palette.png</file>
+  <file>./icons/save-quantized.png</file>
+  <file>./icons/save-wheel.png</file>
   <file>./icons/yin-yang.png</file>
+  <file>./icons/zoom.png</file>
 </qresource>
 </RCC>

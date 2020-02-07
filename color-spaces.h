@@ -4,7 +4,7 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#                v1.1 - 2020/01/11
+#                v1.2 - 2020/02/06
 #
 #  Color spaces :
 #    - RGB
@@ -19,7 +19,7 @@
 #    - LMS
 #    - CYMK
 #
-#  + color utils
+#  + RGB and CIELAb color utils
 #
 #-------------------------------------------------*/
 
@@ -121,26 +121,31 @@ struct struct_palette { // structure of a color value
     bool visible; // visibility indicator
 };
 
-//// Color utils
+//// Distances
 
-long double PerceivedBrightnessRGB(const long double &R, const long double &G, const long double &B); // perceived brightnessof RGB value
-void HSLfromRGB(const long double &R, const long double &G, const long double &B, long double &H, long double &S, long double&L); // get HSL values from RGB using HSL, CIELuv and CIELCHuv
 long double EuclidianDistanceSpace(const long double &x1, const long double &y1, const long double &z1,
                                    const long double &x2, const long double &y2, const long double &z2); // euclidian distance in 3-dimension
 long double EuclidianDistancePlane(const long double &x1, const long double &y1,
                                    const long double &x2, const long double &y2); // euclidian distance in 2-dimension
 long double distanceCIEDE2000LAB(const long double &L1, const long double &A1, const long double &B1,
-                                 const long double &L2, const long double &A2, const long double &B2); // distance in CIELAB space
-long double distanceCIEDE2000LCH(const long double &L1, const long double &C1, const long double &H1,
-                                 const long double &L2, const long double &C2, const long double &H2); // distance in CIELCh space
+                                 const long double &L2, const long double &A2, const long double &B2, const long double k_L, const long double k_C, const long double k_H); // distance in CIELAB space
 long double DistanceFromBlackRGB(const long double &R, const long double &G, const long double &B); // CIEDE2000 distance from RGB(0,0,0)
 long double DistanceFromWhiteRGB(const long double &R, const long double &G, const long double &B); // CIEDE2000 distance from RGB(1,1,1)
 long double DistanceFromGrayRGB(const long double &R, const long double &G, const long double &B); // CIEDE2000 distance from nearest gray (computed in CIELAB)
 long double DistanceRGB(const long double &R1, const long double &G1, const long double &B1,
-                        const long double &R2, const long double &G2, const long double &B2); // CIEDE2000 distance between 2 RGB values
-void RGBMean(const long double &R1, const long double &G1, const long double &B1,
-             const long double &R2, const long double &G2, const long double &B2,
+                        const long double &R2, const long double &G2, const long double &B2, const long double k_L, const long double k_C, const long double k_H); // CIEDE2000 distance between 2 RGB values
+
+//// RGB
+
+void RGBMean(const long double &R1, const long double &G1, const long double &B1, const long double W1,
+             const long double &R2, const long double &G2, const long double &B2, const long double W2,
              long double &R, long double &G, long double &B); // mean RGB value of 2 RGB values
+void RGBtoStandard(const long double &r, const long double &g, const long double &b, int &R, int &G, int &B); // convert RGB [0..1] to RGB [0..255])
+void GammaCorrectionToSRGB(const long double &R, const long double &G, const long double &B, long double &r, long double &g, long double &b); // Apply linear RGB gamma correction to sRGB
+void GammaCorrectionFromSRGB(const long double &R, const long double &G, const long double &B, long double &r, long double &g, long double &b); // Apply linear gamma correction from sRGB
+void HSLChfromRGB(const long double &R, const long double &G, const long double &B, long double &H, long double &S, long double&L, long double &C, long double &h); // get HSL values from RGB using HSL, CIELab and CIELCHab
+long double PerceivedBrightnessRGB(const long double &R, const long double &G, const long double &B); // perceived brightness of RGB value
+bool IsRGBColorDark(int red, int green, int blue); // is the RGB value given dark or not ?
 
 //// Color spaces conversions
 
@@ -149,41 +154,48 @@ void SpectralColorToRGB(const long double &L, long double &R, long double &G, lo
 
 void RGBtoHSV(const long double &R, const long double &G, const long double &B, long double& H, long double& S, long double &V, long double &C); // convert RGB value to HSV
 void HSVtoRGB(const long double &H, const long double &S, const long double &V, long double &R, long double &G, long double &B); // convert HSV value to RGB
+void HSVtoStandard(const long double &h, const long double &s, const long double &v, int &H, int &S, int &V); // convert HSV [0..1] to HSV H [0..359] S and V [0..100]
 
 void RGBtoHSL(const long double &R, const long double &G, const long double &B, long double &H, long double &S, long double &L, long double &C); // convert RGB value to HSL
 void HSLtoRGB(const long double &H, const long double &S, const long double &L, long double &R, long double &G, long double &B); // convert HSL value to RGB
-
-void RGBtoXYZ(const long double &R, const long double &G, const long double &B, long double &X, long double &Y, long double &Z); // convert RGB value to CIE XYZ
-void XYZtoRGB(const long double &X, const long double &Y, const long double &Z, long double &R, long double &G, long double &B); // convert from XYZ to RGB
-
-void XYZtoxyY(const long double &X, const long double &Y, const long double &Z, long double &x, long double &y); // convert CIE XYZ value to CIE xyY
-void xyYtoXYZ(const long double &x, const long double &y, const long double &Y, long double &X, long double &Z); // convert CIE xyY value to CIE XYZ
-
-void XYZtoLAB(const long double &X, const long double &Y, const long double &Z, long double &L, long double &A, long double &B); // convert CIE XYZ value to CIE LAB
-void LABtoXYZ(const long double &L, const long double &A, const long double &B, long double &X, long double &Y, long double &Z); // convert CIE LAB value to CIE XYZ
-
-void XYZtoHLAB(const long double &X, const long double &Y, const long double &Z, long double &L, long double &A, long double &B); // convert from XYZ to Hunter Lab
-void HLABtoXYZ(const long double &L, const long double &A, const long double &B, long double &X, long double &Y, long double &Z); // convert from Hunter Lab to XYZ
+void HSLtoStandard(const long double &h, const long double &s, const long double &l, int &H, int &S, int &L); // convert HSL [0..1] to HSL H [0..359] S and L [0..100]
 
 void HSVtoHWB(const long double &h, const long double &s, const long double &v, long double &H, long double &W, long double &B); // convert HSV value to HWB
 void HWBtoHSV(const long double &h, const long double &w, const long double &b, long double &H, long double &S, long double &V); // convert HWB vlaue to HSV
-
 void RGBtoHWB(const long double &r, const long double &g, const long double &b, long double &H, long double &W, long double &B); // convert RGB value to HWB
 void HWBtoRGB(const long double &h, const long double &w, const long double &b, long double &R, long double &G, long double &B); // convert HWB value to RGB
+void HWBtoStandard(const long double &h, const long double &w, const long double &b, int &H, int &W, int &B); // convert HWB [0..1] to HWB H [0..359] W and B [0..100]
 
+void RGBtoXYZ(const long double &R, const long double &G, const long double &B, long double &X, long double &Y, long double &Z); // convert RGB value to CIE XYZ
+void XYZtoRGB(const long double &X, const long double &Y, const long double &Z, long double &R, long double &G, long double &B); // convert from XYZ to RGB
+void XYZtoRGBNoClipping(const long double &X, const long double &Y, const long double &Z, long double &R, long double &G, long double &B); // convert from XYZ to RGB (in fact sRGB) without clipping to [0..1]
+void XYZtoxyY(const long double &X, const long double &Y, const long double &Z, long double &x, long double &y); // convert CIE XYZ value to CIE xyY
+void xyYtoXYZ(const long double &x, const long double &y, const long double &Y, long double &X, long double &Z); // convert CIE xyY value to CIE XYZ
+void XYZtoStandard(const long double &x, const long double &y, const long double &z, int &X, int &Y, int &Z); // convert XYZ [0..1] to XYZ [0..100]
+
+void XYZtoLAB(const long double &X, const long double &Y, const long double &Z, long double &L, long double &A, long double &B); // convert CIE XYZ value to CIE LAB
+void LABtoXYZ(const long double &L, const long double &A, const long double &B, long double &X, long double &Y, long double &Z); // convert CIE LAB value to CIE XYZ
+void LABtoStandard(const long double &l, const long double &a, const long double &b, int &L, int &A, int &B); // convert CIELab [0..1] to CIELab L [0..100] a and b [-128..127]
 void LABtoLCHab(const long double &A, const long double &B, long double &C, long double &H); // convert from LAB to LCH - L is the same so no need to convert
-void LCHabToLAB(const long double &H, const long double &C, long double &A, long double &B); // convert from LCH to LAB - L is the same so no need to convert
+void LCHabToLAB(const long double &C, const long double &H, long double &A, long double &B); // convert from LCH to LAB - L is the same so no need to convert
+void LCHabtoStandard(const long double &l, const long double &c, const long double &h, int &L, int &C, int &H); // convert CIE LCHab [0..1] to CIE LCHab L [0..100] C [0..100+] H [0..359]
 
 void XYZtoLuv(const long double &X, const long double &Y, const long double &Z, long double &L, long double &u, long double &v); // convert CIE XYZ value to CIE L*u*v*
 void LuvToXYZ(const long double &L, const long double &u, const long double &v, long double &X, long double &Y, long double &Z); // convert CIE L*u*v* value to CIE XYZ
-
+void LuvToStandard(const long double &l, const long double &u, const long double &v, int &L, int &U, int &V); // convert CIELab [0..1] to CIELab L [0..100] u and v [-100..100]
 void LuvToLCHuv(const long double &u, const long double &v, long double &C, long double &H); // convert from Luv to LCHuv - L is the same so no need to convert
 void LCHuvToLuv(const long double &C, const long double &H, long double &u, long double &v); // convert from LCHuv to LUV - L is the same so no need to convert
+void LCHuvtoStandard(const long double &l, const long double &c, const long double &h, int &L, int &C, int &H); // convert CIE LCHuv [0..1] to CIE LCHuv L [0..100] C [0..100+] H [0..359]
+
+void XYZtoHLAB(const long double &X, const long double &Y, const long double &Z, long double &L, long double &A, long double &B); // convert from XYZ to Hunter Lab
+void HLABtoXYZ(const long double &L, const long double &A, const long double &B, long double &X, long double &Y, long double &Z); // convert from Hunter Lab to XYZ
+void HLABtoStandard(const long double &l, const long double &a, const long double &b, int &L, int &A, int &B); // convert Hunter Lab [0..1] to Hunter Lab L [0..100] a and b [-100..100]
 
 void XYZtoLMS(const long double &X, const long double &Y, const long double &Z, long double &L, long double &M, long double &S); // convert from XYZ to LMS
 
 void RGBtoCMYK(const long double &R, const long double &G, const long double &B, long double &C, long double &M, long double &Y, long double &K); // convert from RGB to CMYK
 void CMYKtoRGB(const long double &C, const long double &M, const long double &Y, const long double &K, long double &R, long double &G, long double &B); // convert from CMYK to RGB
+void CMYKtoStandard(const long double &c, const long double &m, const long double &y, const long double &b, int &C, int &M, int &Y, int &K); // convert CMYK [0..1] to CMYK [0..100]
 
 //// wavelength XYZ data
 // wavelength value of light in nm to CIE XYZ

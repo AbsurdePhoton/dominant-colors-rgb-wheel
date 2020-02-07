@@ -4,7 +4,7 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#                v1.1 - 2020/01/11
+#                v1.2 - 2020/02/06
 #
 #  Color spaces :
 #    - RGB
@@ -29,52 +29,30 @@
 #include "color-spaces.h"
 #include "angles.h"
 
-/////////////////// Color utils //////////////////////
+/////////////////// Distances //////////////////////
 // All input values are in range [0..1]
 
-long double PerceivedBrightnessRGB(const long double &R, const long double &G, const long double &B) // perceived brightnessof RGB value
-{
-    long double P = sqrt(pow(R * 255.0, 2) * 0.299 + pow(G * 255.0, 2) * 0.587 + pow(B * 255.0, 2) * 0.114); // Perceived brightness=sqrt(0.299*R² + 0.587*G² + 0.114*B²)
-
-    return P / 255.0; // result in [0..1]
-}
-
-void HSLfromRGB(const long double &R, const long double &G, const long double &B,
-                long double &H, long double &S, long double&L) // get HSL values from RGB using HSL, CIELuv and CIELCHuv
-// L and S from LCHuv are more perceptive than S and L from HSL that is derived from RGB
-{
-    long double X, Y, Z; // for XYZ values
-    long double C, u, v; // for Luv and LCHuv
-
-    RGBtoXYZ(R, G, B, X, Y, Z); // first step to get values in CIE spaces : convert RGB to XYZ
-    XYZtoLuv(X, Y, Z, L, u, v); // first step for getting chromaticity : convert to CIELuv to get L
-    LuvToLCHuv(u, v, C, H); // get chroma C
-    S = C / sqrt(pow(C,2) + pow(L,2)); // saturation S from LCHuv
-    long double s, l, c;
-    RGBtoHSL(R, G, B, H, s, l, c); // getting H from HSL
-}
-
 long double EuclidianDistanceSpace(const long double &x1, const long double &y1, const long double &z1,
-                                   const long double &x2, const long double &y2, const long double &z2) // euclidian distance in 3-dimension
+                                   const long double &x2, const long double &y2, const long double &z2) // euclidian distance in 3D
 {
     return sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2) + pow(z1 - z2, 2)); // euclidian distance formula sqrt(x²+y²+z²)
 }
 
-long double EuclidianDistancePlane(const long double &x1, const long double &y1, const long double &x2, const long double &y2) // euclidian distance in 2-dimension
+long double EuclidianDistancePlane(const long double &x1, const long double &y1, const long double &x2, const long double &y2) // euclidian distance in 2D
 {
     return sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2)); // euclidian distance formula sqrt(x²+y²)
 }
 
 long double distanceCIEDE2000LAB(const long double &L1, const long double &A1, const long double &B1,
-                                 const long double &L2, const long double &A2, const long double &B2) // distance in CIELAB space using last and best formula (CIEDE2000) compared to CIE94 and CIE76
+                                 const long double &L2, const long double &A2, const long double &B2,
+                                 const long double k_L, const long double k_C, const long double k_H) // distance in CIELAB space using last and best formula (CIEDE2000) compared to CIE94 and CIE76
 {
     // Adapted from Gregory Fiumara
     // source : http://github.com/gfiumara/CIEDE2000
     // Based on "The CIEDE2000 Color-Difference Formula: Implementation Notes, Supplementary Test Data, and Mathematical Observations" by Gaurav Sharma, Wencheng Wu, and Edul N. Dalal
     // Results checked against all article values page 24 : OK
-
     // "For these and all other numerical/graphical delta E00 values reported in this article, we set the parametric weighting factors to unity(i.e., k_L = k_C = k_H = 1.0)." (p27)
-    const long double k_L = 1.0, k_C = 1.0, k_H = 1.0;
+    // This function is SLOW, for speed use euclidian distance
 
     // Step 0 : convert values to correct ranges : L, a and b must be in [0..100]
     const long double l1 = L1 * 100.0;
@@ -189,21 +167,12 @@ long double distanceCIEDE2000LAB(const long double &L1, const long double &A1, c
     return (deltaE);
 }
 
-long double distanceCIEDE2000LCH(const long double &L1, const long double &C1, const long double &H1,
-                                 const long double &L2, const long double &C2, const long double &H2) // distance in CIELCh space
-{
-    long double A1, A2, B1, B2;
-    LCHabToLAB(H1, C1, A1, B1); // convert to CIELab
-    LCHabToLAB(H2, C2, A2, B2);
-    return distanceCIEDE2000LAB(L1, A1, B1, L2, A2, B2); // CIEDE2000 distance
-}
-
 long double DistanceFromBlackRGB(const long double &R, const long double &G, const long double &B) // CIEDE2000 distance from RGB(0,0,0)
 {
     long double X, Y, Z, L, a, b;
     RGBtoXYZ(R, G, B, X, Y, Z); // convert RGB to XYZ
     XYZtoLAB(X, Y, Z, L, a, b); // convert XYZ to CIELab
-    return distanceCIEDE2000LAB(L, a, b, 0, 0, 0); // CIEDE2000 distance from pure black
+    return distanceCIEDE2000LAB(L, a, b, 0, 0, 0, 1.0, 1.0, 1.0); // CIEDE2000 distance from pure black
 }
 
 long double DistanceFromWhiteRGB(const long double &R, const long double &G, const long double &B) // CIEDE2000 distance from RGB(1,1,1)
@@ -211,7 +180,7 @@ long double DistanceFromWhiteRGB(const long double &R, const long double &G, con
     long double X, Y, Z, L, a, b;
     RGBtoXYZ(R, G, B, X, Y, Z); // convert RGB to XYZ
     XYZtoLAB(X, Y, Z, L, a, b); // convert XYZ to CIELab
-    return distanceCIEDE2000LAB(L, a, b, 1, 0, 0); // CIEDE2000 distance from white
+    return distanceCIEDE2000LAB(L, a, b, 1, 0, 0, 1.0, 1.0, 1.0); // CIEDE2000 distance from white
 }
 
 long double DistanceFromGrayRGB(const long double &R, const long double &G, const long double &B) // CIEDE2000 distance from nearest gray (computed in CIELAB)
@@ -219,76 +188,130 @@ long double DistanceFromGrayRGB(const long double &R, const long double &G, cons
     long double X, Y, Z, L, a, b;
     RGBtoXYZ(R, G, B, X, Y, Z); // convert RGB to XYZ
     XYZtoLAB(X, Y, Z, L, a, b); // convert XYZ to CIELab
-    return distanceCIEDE2000LAB(L, a, b, L, 0, 0); // CIEDE2000 distance from corresponding gray (same L value with a=b=0, i.e. no chroma)
+    return distanceCIEDE2000LAB(L, a, b, L, 0, 0, 1.0, 1.0, 1.0); // CIEDE2000 distance from corresponding gray (same L value with a=b=0, i.e. no chroma)
 }
 
 long double DistanceRGB(const long double &R1, const long double &G1, const long double &B1,
-                        const long double &R2, const long double &G2, const long double &B2) // CIEDE2000 distance between 2 RGB values
+                        const long double &R2, const long double &G2, const long double &B2,
+                        const long double k_L, const long double k_C, const long double k_H) // CIEDE2000 distance between 2 RGB values
 {
     long double X, Y, Z, L1, a1, b1, L2, a2, b2;
     RGBtoXYZ(R1, G1, B1, X, Y, Z); // convert RGB to XYZ
     XYZtoLAB(X, Y, Z, L1, a1, b1); // convert XYZ to CIELab
     RGBtoXYZ(R2, G2, B2, X, Y, Z); // same for 2nd RGB value
     XYZtoLAB(X, Y, Z, L2, a2, b2);
-    return distanceCIEDE2000LAB(L1, a1, b1, L2, a2, b2); // CIEDE2000 distance
+    return distanceCIEDE2000LAB(L1, a1, b1, L2, a2, b2, k_L, k_C, k_H); // CIEDE2000 distance
 }
 
-void RGBMean(const long double &R1, const long double &G1, const long double &B1,
-             const long double &R2, const long double &G2, const long double &B2,
-             long double &R, long double &G, long double &B) // mean RGB value of 2 RGB values
-{
-    long double r1, g1, b1, r2, g2, b2;
-    // gamma correction - conversion to linear space - source http://www.brucelindbloom.com/index.html?Eqn_RGB_to_XYZ.html
-    // first RGB value
-    if (R1 > 0.04045)
-        r1 = powl((R1 + 0.055) / 1.055, 2.4);
-    else
-        r1 = R1 / 12.92;
-    if (G1 > 0.04045)
-        g1 = powl((G1 + 0.055) / 1.055, 2.4);
-    else
-        g1 = G1 / 12.92;
-    if (B1 > 0.04045)
-        b1 = powl((B1 + 0.055) / 1.055, 2.4);
-    else
-        b1 = B1 / 12.92;
-    // second RGB value
-    if (R2 > 0.04045)
-        r2 = powl((R2 + 0.055) / 1.055, 2.4);
-    else
-        r2 = R2 / 12.92;
-    if (G2 > 0.04045)
-        g2 = powl((G2 + 0.055) / 1.055, 2.4);
-    else
-        g2 = G2 / 12.92;
-    if (B2 > 0.04045)
-        b2 = powl((B2 + 0.055) / 1.055, 2.4);
-    else
-        b2 = B2 / 12.92;
-    // mean for RGB values in a linear space
-    R = (r1 + r2) / 2.0;
-    G = (g1 + g2) / 2.0;
-    B = (b1 + b2) / 2.0;
+/////////////////// RGB color space //////////////////////
 
-    // invert gamma of RGB result - source http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
-    if (R > 0.0031308)
-        R = 1.055 * powl(R, 1.0 / 2.4) - 0.055;
+void RGBMean(const long double &R1, const long double &G1, const long double &B1, const long double W1,
+             const long double &R2, const long double &G2, const long double &B2, const long double W2,
+             long double &R, long double &G, long double &B) // mean RGB value of 2 RGB values
+{   
+    long double r1, g1, b1, r2, g2, b2;
+    // gamma correction - conversion to linear space - better for means
+    GammaCorrectionToSRGB(R1, G1, B1, r1, g1, b1); // first RGB value
+    GammaCorrectionToSRGB(R2, G2, B2, r2, g2, b2); // second RGB value
+
+    // mean for RGB values in a linear space
+    R = (r1 * W1 + r2 * W2) / (W1 + W2);
+    G = (g1 * W1 + g2 * W2) / (W1 + W2);
+    B = (b1 * W1 + b2 * W2) / (W1 + W2);
+
+    // invert gamma return to RGB
+    GammaCorrectionFromSRGB(R, G, B, R, G, B); // gamma correction to linear sRGB
+}
+
+void RGBtoStandard(const long double &r, const long double &g, const long double &b, int &R, int &G, int &B) // convert RGB [0..1] to RGB [0..255]
+{
+    R = round(r * 255.0L);
+    G = round(g * 255.0L);
+    B = round(b * 255.0L);
+}
+
+void GammaCorrectionToSRGB(const long double &R, const long double &G, const long double &B, long double &r, long double &g, long double &b) // Apply linear RGB gamma correction to sRGB
+{
+    // Gamma correction - conversion to linear space - source http://www.brucelindbloom.com/index.html?Eqn_RGB_to_XYZ.html
+    if (R > 0.04045)
+        r = powl((R + 0.055) / 1.055, 2.4);
     else
-        R = R * 12.92;
+        r = R / 12.92;
+    if (G > 0.04045)
+        g = powl((G + 0.055) / 1.055, 2.4);
+    else
+        g = G / 12.92;
+    if (B > 0.04045)
+        b = powl((B + 0.055) / 1.055, 2.4);
+    else
+        b = B / 12.92;
+}
+
+void GammaCorrectionFromSRGB(const long double &R, const long double &G, const long double &B, long double &r, long double &g, long double &b) // Apply linear gamma correction from sRGB
+{
+    // Gamma profile - source http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
+    if (R > 0.0031308)
+        r = 1.055 * powl(R, 1.0 / 2.4) - 0.055;
+    else
+        r = R * 12.92;
 
     if (G > 0.0031308)
-        G = 1.055 * powl(G, 1.0 / 2.4) - 0.055;
+        g = 1.055 * powl(G, 1.0 / 2.4) - 0.055;
     else
-        G = G * 12.92;
+        g = G * 12.92;
 
     if (B > 0.0031308)
-        B = 1.055 * powl(B, 1.0 / 2.4) - 0.055;
+        b = 1.055 * powl(B, 1.0 / 2.4) - 0.055;
     else
-        B = B * 12.92;
+        b = B * 12.92;
+}
+
+long double PerceivedBrightnessRGB(const long double &R, const long double &G, const long double &B) // perceived brightness of RGB value
+{
+    long double P = sqrt(pow(R * 255.0, 2) * 0.299 + pow(G * 255.0, 2) * 0.587 + pow(B * 255.0, 2) * 0.114); // Perceived brightness=sqrt(0.299*R² + 0.587*G² + 0.114*B²)
+
+    return P / 255.0; // result in [0..1]
+}
+
+void HSLChfromRGB(const long double &R, const long double &G, const long double &B,
+                long double &H, long double &S, long double&L, long double &C, long double &h) // get HSL values from RGB using HSL, CIELab and CIELCHab
+{
+    // C, L and S from LCHab are more perceptive than S and L from HSL that is derived from RGB
+
+    long double X, Y, Z; // for XYZ values
+    long double a, b; // for CIELab and CIELCHab
+
+    RGBtoXYZ(R, G, B, X, Y, Z); // first step to get values in CIE spaces : convert RGB to XYZ
+    XYZtoLAB(X, Y, Z, L, a, b); // then to CIELAb
+    LABtoLCHab(a, b, C, h); // then to CIELCHab
+
+    if (L == 0) { // black is a particular value
+        S = 0;
+        C = 0;
+    }
+    else // if not black
+        S = C / sqrtl(pow(C,2) + pow(L,2)); // saturation S from LCHab
+    if (S > 1)
+        S = 1;
+    long double s, l, c;
+    RGBtoHSL(R, G, B, H, s, l, c); // getting H from HSL
+}
+
+bool IsRGBColorDark(int red, int green, int blue) // tell if a RGB color is dark or not
+{
+  double brightness;
+  brightness = (red * 299) + (green * 587) + (blue * 114);
+  brightness = brightness / 255000;
+
+  // values range from 0 to 1 : anything greater than 0.5 should be bright enough for dark text
+  return (brightness <= 0.5);
 }
 
 /////////////////// Color spaces conversions //////////////////////
 //// All values are in range [0..1]
+
+//// Spectral colors
+//// see https://en.wikipedia.org/wiki/Spectral_color
 
 void WavelengthToXYZ(const long double &w, long double &X, long double &Y, long double &Z) // wavelength to XYZ color space
 {
@@ -331,7 +354,7 @@ void SpectralColorToRGB(const long double &L, long double &R, long double &G, lo
     if      ((L >= 400.0) and (L < 475.0))  { t = (L - 400.0) / (475.0 - 400.0); B = 2.20 * t - 1.50 * t * t; }
     else if ((L >= 475.0) and (L < 560.0))  { t = (L - 475.0) / (560.0 - 475.0); B = 0.7 - t + 0.30 * t * t; }
 
-    // R, G and B must be in [0..1]
+    // clipping : R, G and B must stay in [0..1]
     if (R > 1)
         R = 1;
     if (G > 1)
@@ -436,6 +459,13 @@ void HSVtoRGB(const long double &H, const long double &S, const long double &V, 
   B += M;
 }
 
+void HSVtoStandard(const long double &h, const long double &s, const long double &v, int &H, int &S, int &V) // convert HSV [0..1] to HSV H [0..359] S and V [0..100]
+{
+    H = round(h * 360.0L);
+    S = round(s * 100.0L);
+    V = round(v * 100.0L);
+}
+
 //// HSL
 //// see https://en.wikipedia.org/wiki/HSL_and_HSV
 //// All values [0..1]
@@ -447,7 +477,7 @@ void RGBtoHSL(const long double &R, const long double &G, const long double &B, 
     long double cmin = std::min(std::min(R, G), B);    // minimum of RGB
     long double diff = cmax - cmin;       // diff of cmax and cmin.
 
-    L = (cmax + cmin) / 2.0; // middle of range
+    L = (cmax + cmin) / 2.0L; // middle of range
 
     if(cmax == cmin) // particular case : color is a gray
     {
@@ -455,29 +485,29 @@ void RGBtoHSL(const long double &R, const long double &G, const long double &B, 
         H = 0;
     }
     else {
-        if (L < .50) // result depends on Lightness
+        if (L < 0.5) // result depends on Lightness
             S = diff / (cmax + cmin); // compute S
         else
-            S = diff / (2 - cmax - cmin); // compute S
+            S = diff / (2.0L - cmax - cmin); // compute S
 
         // which is the dominant in R, G, B
         if (cmax == R) // red
             H = (G - B) / diff; // compute H
         if (cmax == G) // green
-            H = 2 + (B - R) / diff; // compute H
+            H = 2.0L + (B - R) / diff; // compute H
         if (cmax == B) // blue
-            H = 4 + (R - G) / diff; // compute H
+            H = 4.0L + (R - G) / diff; // compute H
     }
 
     H = H * 60; // H in degrees
 
     if (H < 0) // H in [0..360]
-        H += 360;
-    if (H >= 360)
-        H -= 360;
+        H += 360.0L;
+    if (H >= 360.0L)
+        H -= 360.0L;
 
     // Final results in range [0..1]
-    H = H / 360.0; // was in degrees
+    H = H / 360.0L; // was in degrees
     C = diff; // Chroma
 }
 
@@ -489,11 +519,11 @@ long double HueToRGB(const long double &v1, const long double &v2, const long do
     if (vH > 1) vH -= 1;
 
     if ((6 * vH) < 1) // which component (R, G, B) to compute ?
-        return v1 + (v2 - v1) * 6.0 * vH;
+        return v1 + (v2 - v1) * 6.0L * vH;
     if ((2 * vH) < 1 )
         return v2;
     if ((3 * vH) < 2 )
-        return (v1 + (v2 - v1) * ((2.0 / 3.0) - vH) * 6.0);
+        return (v1 + (v2 - v1) * ((2.0L / 3.0L) - vH) * 6.0L);
     return (v1);
 }
 
@@ -507,16 +537,23 @@ void HSLtoRGB(const long double &H, const long double &S, const long double &L, 
     else {
         long double var_1, var_2;
         if (L < 0.5) // Result depends on Luminance
-            var_2 = L * (1.0 + S);
+            var_2 = L * (1.0L + S);
         else
             var_2 = (L + S) - (S * L);
 
-        var_1 = 2.0 * L - var_2; // first component based on Luminance
+        var_1 = 2.0L * L - var_2; // first component based on Luminance
 
-        R = HueToRGB(var_1, var_2, H + 1.0 / 3.0); // compute R, G, B
+        R = HueToRGB(var_1, var_2, H + 1.0L / 3.0L); // compute R, G, B
         G = HueToRGB(var_1, var_2, H);
-        B = HueToRGB(var_1, var_2, H - 1.0 / 3.0);
+        B = HueToRGB(var_1, var_2, H - 1.0L / 3.0L);
     }
+}
+
+void HSLtoStandard(const long double &h, const long double &s, const long double &l, int &H, int &S, int &L) // convert HSL [0..1] to HSL H [0..359] S and L [0..100]
+{
+    H = round(h * 360.0L);
+    S = round(s * 100.0L);
+    L = round(l * 100.0L);
 }
 
 //// HWB
@@ -528,8 +565,8 @@ void HSVtoHWB(const long double &h, const long double &s, const long double &v, 
 { // function checked OK with other calculators
     // calculus is simple ! There is a direct relation
     H = h;
-    W = (1.0 - s) * v;
-    B = 1.0 - v;
+    W = (1.0L - s) * v;
+    B = 1.0L - v;
 }
 
 void RGBtoHWB(const long double &r, const long double &g, const long double &b, long double &H, long double &W, long double &B) // convert RGB to HWB
@@ -541,10 +578,10 @@ void RGBtoHWB(const long double &r, const long double &g, const long double &b, 
 
 void HWBtoHSV(const long double &h, const long double &w, const long double &b, long double &H, long double &S, long double &V) // convert HWB to HSV
 { // function checked OK with other calculators
-    // calculus is simple ! There is a direct relation
+    // calculus is simple ! This is a direct relation
     H = h;
-    S = 1.0 - (w / (1.0 - b));
-    V = 1.0 - b;
+    S = 1.0L - (w / (1.0L - b));
+    V = 1.0L - b;
 }
 
 void HWBtoRGB(const long double &h, const long double &w, const long double &b, long double &R, long double &G, long double &B) // convert HWB to RGB
@@ -552,6 +589,13 @@ void HWBtoRGB(const long double &h, const long double &w, const long double &b, 
     long double H, S, V;
     HWBtoHSV(h, w, b, H, S, V); // first convert to HSV
     HSVtoRGB(H, S, V, R, G, B); // then to RGB
+}
+
+void HWBtoStandard(const long double &h, const long double &w, const long double &b, int &H, int &W, int &B) // convert HWB [0..1] to HWB H [0..359] W and B [0..100]
+{
+    H = round(h * 360.0L);
+    W = round(w * 100.0L);
+    B = round(b * 100.0L);
 }
 
 //// XYZ
@@ -564,19 +608,7 @@ void RGBtoXYZ(const long double &R, const long double &G, const long double &B, 
 { // function checked OK with other calculators
     long double r, g, b;
 
-    // Gamma correction - conversion to linear space - source http://www.brucelindbloom.com/index.html?Eqn_RGB_to_XYZ.html
-    if (R > 0.04045)
-        r = powl((R + 0.055) / 1.055, 2.4);
-    else
-        r = R / 12.92;
-    if (G > 0.04045)
-        g = powl((G + 0.055) / 1.055, 2.4);
-    else
-        g = G / 12.92;
-    if (B > 0.04045)
-        b = powl((B + 0.055) / 1.055, 2.4);
-    else
-        b = B / 12.92;
+    GammaCorrectionToSRGB(R, G, B, r, g, b); // gamma correction to linear sRGB
 
     // Gammut conversion to sRGB - source http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
     X = r * 0.4124564 + g * 0.3575761 + b * 0.1804375;
@@ -591,111 +623,44 @@ void XYZtoRGB(const long double &X, const long double &Y, const long double &Z, 
     G = X * -0.9692660 + Y *  1.8760108 + Z *  0.0415560;
     B = X *  0.0556434 + Y * -0.2040259 + Z *  1.0572252;
 
-    // Gamma profile - source http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
-    if (R > 0.0031308)
-        R = 1.055 * powl(R, 1.0 / 2.4) - 0.055;
-    else
-        R = R * 12.92;
+    GammaCorrectionFromSRGB(R, G, B, R, G, B); // gamma correction from linear sRGB
 
-    if (G > 0.0031308)
-        G = 1.055 * powl(G, 1.0 / 2.4) - 0.055;
-    else
-        G = G * 12.92;
-
-    if (B > 0.0031308)
-        B = 1.055 * powl(B, 1.0 / 2.4) - 0.055;
-    else
-        B = B * 12.92;
-
-    // R, G and B must be in [0..1]
-    if (R > 1)
-        R = 1;
-    if (G > 1)
-        G = 1;
-    if (B > 1)
-        B = 1;
+    // clipping : R, G and B must be in [0..1]
     if (R < 0)
         R = 0;
+    if (R > 1)
+        R = 1;
     if (G < 0)
         G = 0;
+    if (G > 1)
+        G = 1;
     if (B < 0)
         B = 0;
+    if (B > 1)
+        B = 1;
 }
 
-//// L*A*B*
-//// see https://en.wikipedia.org/wiki/CIELAB_color_space for LAB
-//// All values [0..1]
-//// Common range for L*A*B*: L [0..100] S [-128..127] V [-128..127]
-
-void XYZtoLAB(const long double &X, const long double &Y, const long double &Z, long double &L, long double &A, long double &B) // convert CIE XYZ value to CIE L*A*B*
+void XYZtoRGBNoClipping(const long double &X, const long double &Y, const long double &Z, long double &R, long double &G, long double &B) // convert from XYZ to RGB without clipping to [0..1]
 { // function checked OK with other calculators
-    // reference white in XYZ
-    long double ref_X = 0.95047;
-    long double ref_Y = 1.0;
-    long double ref_Z = 1.08883;
-    // CIE values
-    long double E = 216.0 / 24389.0;
-    long double K = 24389.0 / 27.0;
+    // Gammut conversion - source http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
+    R = X *  3.2404542 + Y * -1.5371385 + Z * -0.4985314;
+    G = X * -0.9692660 + Y *  1.8760108 + Z *  0.0415560;
+    B = X *  0.0556434 + Y * -0.2040259 + Z *  1.0572252;
 
-    long double Xr = X / ref_X;
-    long double Yr = Y / ref_Y;
-    long double Zr = Z / ref_Z;
+    GammaCorrectionFromSRGB(R, G, B, R, G, B); // gamma correction from linear sRGB
 
-    long double fX, fY, fZ;
-    if (Xr > E)
-        fX = powl(Xr, 1.0 / 3.0);
-    else
-        fX = (K * Xr + 16.0) / 116.0;
-    if (Yr > E)
-        fY = powl(Yr, 1.0 / 3.0);
-    else
-        fY = (K * Yr + 16.0) / 116.0;
-    if (Zr > E)
-        fZ = powl(Zr, 1.0 / 3.0);
-    else
-        fZ = (K * Zr + 16.0) / 116.0;
-
-    L = 116.0 * fY - 16.0;
-    A = 500.0 * (fX - fY);
-    B = 200.0 * (fY - fZ);
-
-    L = L / 100.0; // to stay in [0..1] range
-    A = A / 127.0;
-    B = B / 127.0;
+    if ((R > 1) or (R < 0) or (G > 1) or (G < 0) or (B > 1) or (B < 0)) { // R, G and B must be in [0..1] - else return black (0,0,0) - no clipping
+        R = 0;
+        G = 0;
+        B = 0;
+    }
 }
 
-void LABtoXYZ(const long double &L, const long double &A, const long double &B, long double &X, long double &Y, long double &Z) // convert CIE L*A*B* to CIE XYZ
-{ // function checked OK with other calculators
-    // reference white in XYZ
-    long double ref_X = 0.95047;
-    long double ref_Y = 1.0;
-    long double ref_Z = 1.08883;
-    // CIE values
-    long double E = 216.0 / 24389.0;
-    long double K = 24389.0 / 27.0;
-
-    long double fY = (L * 100.0 + 16.0) / 116.0;
-    long double fZ = fY - B * 127.0 / 200.0;
-    long double fX = A * 127.0 / 500.0 + fY;
-
-    long double Xr, Yr, Zr;
-
-    if (powl(fX, 3.0) > E)
-        Xr = powl(fX, 3.0);
-    else
-        Xr = (116.0 * fX -16.0) / K;
-    if (L * 100.0 > K * E)
-        Yr = powl((L * 100.0 + 16.0) / 116.0, 3.0);
-    else
-        Yr = L * 100.0 / K;
-    if (powl(fZ, 3.0) > E)
-        Zr = powl(fZ, 3.0);
-    else
-        Zr = (116.0 * fZ -16.0) / K;
-
-    X = Xr * ref_X;
-    Y = Yr * ref_Y;
-    Z = Zr * ref_Z;
+void XYZtoStandard(const long double &x, const long double &y, const long double &z, int &X, int &Y, int &Z) // convert XYZ [0..1] to XYZ [0..100]
+{
+    X = round(x * 100.0L);
+    Y = round(y * 100.0L);
+    Z = round(z * 100.0L);
 }
 
 //// CIE xyY
@@ -707,8 +672,8 @@ void LABtoXYZ(const long double &L, const long double &A, const long double &B, 
 void XYZtoxyY(const long double &X, const long double &Y, const long double &Z, long double &x, long double &y) // convert CIE XYZ value to CIE xyY
 { // function checked OK with other calculators
     if ((X == 0) and (Y == 0) and (Z == 0)) { // D65 white point
-        x = 0.3127;
-        y = 0.3290;
+        x = 0.3127L;
+        y = 0.3290L;
     }
     else { // from formula X + Y + Z = 1
         x = X / (X + Y +Z);
@@ -728,66 +693,227 @@ void xyYtoXYZ(const long double &x, const long double &y, const long double &Y, 
     }
 }
 
-//// L*u*v*
+//// CIE L*A*B*
+//// see https://en.wikipedia.org/wiki/CIELAB_color_space for LAB
+//// All values [0..1]
+//// Common range for L*A*B*: L [0..100] S [-128..127] V [-128..127]
+
+void XYZtoLAB(const long double &X, const long double &Y, const long double &Z, long double &L, long double &A, long double &B) // convert CIE XYZ value to CIE L*A*B*
+{ // function checked OK with other calculators
+    // reference white in XYZ
+    long double ref_X = 0.95047L;
+    long double ref_Y = 1.0L;
+    long double ref_Z = 1.08883L;
+    // CIE values
+    long double E = 216.0L / 24389.0L;
+    long double K = 24389.0L / 27.0L;
+
+    long double Xr = X / ref_X;
+    long double Yr = Y / ref_Y;
+    long double Zr = Z / ref_Z;
+
+    long double fX, fY, fZ;
+    if (Xr > E)
+        fX = powl(Xr, 1.0L / 3.0L);
+    else
+        fX = (K * Xr + 16.0L) / 116.0L;
+    if (Yr > E)
+        fY = powl(Yr, 1.0L / 3.0L);
+    else
+        fY = (K * Yr + 16.0L) / 116.0L;
+    if (Zr > E)
+        fZ = powl(Zr, 1.0L / 3.0L);
+    else
+        fZ = (K * Zr + 16.0L) / 116.0L;
+
+    L = 116.0L * fY - 16.0L;
+    A = 500.0L * (fX - fY);
+    B = 200.0L * (fY - fZ);
+
+    L = L / 100.0L; // to stay in [0..1] range
+    A = A / 127.0L;
+    B = B / 127.0L;
+}
+
+void LABtoXYZ(const long double &L, const long double &A, const long double &B, long double &X, long double &Y, long double &Z) // convert CIE L*A*B* to CIE XYZ
+{ // function checked OK with other calculators
+    if (L == 0) { // black
+        X = 0;
+        Y = 0;
+        Z = 0;
+        return;
+    }
+
+    // reference white in XYZ
+    long double ref_X = 0.95047L;
+    long double ref_Y = 1.0L;
+    long double ref_Z = 1.08883L;
+    // CIE values
+    long double E = 216.0L / 24389.0L;
+    long double K = 24389.0L / 27.0L;
+
+    long double fY = (L * 100.0L + 16.0L) / 116.0L;
+    long double fZ = fY - B * 127.0L / 200.0L;
+    long double fX = A * 127.0L / 500.0L + fY;
+
+    long double Xr, Yr, Zr;
+
+    if (powl(fX, 3.0) > E)
+        Xr = powl(fX, 3.0L);
+    else
+        Xr = (116.0L * fX -16.0L) / K;
+    if (L * 100.0L > K * E)
+        Yr = powl((L * 100.0L + 16.0L) / 116.0L, 3.0L);
+    else
+        Yr = L * 100.0L / K;
+    if (powl(fZ, 3.0L) > E)
+        Zr = powl(fZ, 3.0L);
+    else
+        Zr = (116.0L * fZ -16.0L) / K;
+
+    X = Xr * ref_X;
+    Y = Yr * ref_Y;
+    Z = Zr * ref_Z;
+}
+
+void LABtoStandard(const long double &l, const long double &a, const long double &b, int &L, int &A, int &B) // convert CIELab [0..1] to CIELab L [0..100] a and b [-128..127]
+{
+    L = round(l * 100.0L);
+    A = round(a * 127.0L);
+    B = round(b * 127.0L);
+}
+
+//// CIE LCHab
+//// See https://en.wikipedia.org/wiki/CIELAB_color_space#Cylindrical_representation:_CIELCh_or_CIEHLC
+//// All values [0..1] except C
+//// Common range : L [0..100] C [0..100+] h [0..360]
+//// Note that L is exactly equal to L of CIE L*a*b*
+
+void LABtoLCHab(const long double &A, const long double &B, long double &C, long double &H) // convert from LAB to HLC - L is the same so no need to convert
+{ // function checked OK with other calculators
+    C = sqrtl(powl(A, 2.0L) + powl(B, 2.0L)); // chroma : divided by maximum of formula with a=1 and b=1 to have C in [0..1]
+
+    H = atan2l(B, A) / 2.0L / Pi; // Hue - cartesian to polar
+    while (H < 0) // Hue in range [0..1]
+        H += 1.0L;
+    while (H > 1)
+        H -= 1.0L;
+}
+
+void LCHabToLAB(const long double &C, const long double &H, long double &A, long double &B) // convert from HLC to LAB - L is the same so no need to convert
+{ // function checked OK with other calculators
+    A = C * cosl(H * 2.0L * Pi); // polar to cartesian
+    B = C * sinl(H * 2.0L * Pi);
+}
+
+void LCHabtoStandard(const long double &l, const long double &c, const long double &h, int &L, int &C, int &H) // convert CIE LCHab [0..1] to CIE LCHab L [0..100] C [0..100+] H [0..359]
+{
+    L = round(l * 100.0L);
+    C = round(c * 127.0L); // because a and b from CIELab are in [-128..127]
+    H = round(h * 360.0L);
+}
+
+//// CIE L*u*v*
 //// see https://en.wikipedia.org/wiki/CIELUV
 //// All values [0..1]
-//// Common range for L*u*v*: L* [0..100] u* [-134..220] v* [-140..122]
+//// Common range for L*u*v*: L* [0..100] u* [-100..100] v* [-100..100]
 
 void XYZtoLuv(const long double &X, const long double &Y, const long double &Z, long double &L, long double &u, long double &v) // convert CIE XYZ value to CIE L*u*v*
 { // function checked OK with other calculators
     // reference white in XYZ
-    long double ref_X = 0.95047;
-    long double ref_Y = 1.0;
-    long double ref_Z = 1.08883;
+    long double ref_X = 0.95047L;
+    long double ref_Y = 1.0L;
+    long double ref_Z = 1.08883L;
     // CIE values
-    long double E = 216.0 / 24389.0;
-    long double K = 24389.0 / 27.0;
+    long double E = 216.0L / 24389.0L;
+    long double K = 24389.0L / 27.0L;
 
     if (Y / ref_Y > E) // two-part equation
-        L = 116.0 * powl(Y / ref_Y, 1.0 / 3.0) - 16.0;
+        L = 116.0L * powl(Y / ref_Y, 1.0L / 3.0L) - 16.0L;
     else
         L = K * Y / ref_Y;
 
-    long double u_prime = 4.0 * X / (X + 15.0 * Y + 3.0 * Z); // intermediate calculus
-    long double u_ref = 4.0 * ref_X / (ref_X + 15.0 * ref_Y + 3.0 * ref_Z);
-    long double v_prime = 9.0 * Y / (X + 15.0 * Y + 3.0 * Z);
-    long double v_ref = 9.0 * ref_Y / (ref_X + 15.0 * ref_Y + 3.0 * ref_Z);
+    long double u_prime = 4.0L * X / (X + 15.0L * Y + 3.0L * Z); // intermediate calculus
+    long double u_ref = 4.0L * ref_X / (ref_X + 15.0L * ref_Y + 3.0L * ref_Z);
+    long double v_prime = 9.0L * Y / (X + 15.0L * Y + 3.0L * Z);
+    long double v_ref = 9.0L * ref_Y / (ref_X + 15.0L * ref_Y + 3.0L * ref_Z);
 
-    u = 13.0 * L * (u_prime - u_ref); // final values
-    v = 13.0 * L * (v_prime - v_ref);
+    u = 13.0L * L * (u_prime - u_ref); // final values
+    v = 13.0L * L * (v_prime - v_ref);
 
-    L = L / 100.0; // to stay in range [0..1]
-    u = u / 100.0;
-    v = v / 100.0;
+    L = L / 100.0L; // to stay in range [0..1]
+    u = u / 100.0L;
+    v = v / 100.0L;
+    if (isnan(u)) // division by zero is bad so default value
+        u = 0;
+    if (isnan(v))
+        v = 0;
 }
 
 void LuvToXYZ(const long double &L, const long double &U, const long double &V, long double &X, long double &Y, long double &Z) // convert CIE L*u*v* value to CIE XYZ
 { // function checked OK with other calculators
     // reference white in XYZ
-    long double ref_X = 0.95047;
-    long double ref_Y = 1.0;
-    long double ref_Z = 1.08883;
+    long double ref_X = 0.95047L;
+    long double ref_Y = 1.0L;
+    long double ref_Z = 1.08883L;
     // CIE values
-    long double E = 216.0 / 24389.0;
-    long double K = 24389.0 / 27.0;
+    long double E = 216.0L / 24389.0L;
+    long double K = 24389.0L / 27.0L;
 
-    long double l = L * 100.0;
-    long double u = U * 100.0;
-    long double v = V * 100.0;
+    long double l = L * 100.0L;
+    long double u = U * 100.0L;
+    long double v = V * 100.0L;
 
-    long double u0 = 4.0 * ref_X / (ref_X + 15.0 * ref_Y + 3.0 * ref_Z); // white point intermediate values
-    long double v0 = 9.0 * ref_Y / (ref_X + 15.0 * ref_Y + 3.0 * ref_Z);
+    long double u0 = 4.0L * ref_X / (ref_X + 15.0L * ref_Y + 3.0L * ref_Z); // white point intermediate values
+    long double v0 = 9.0L * ref_Y / (ref_X + 15.0L * ref_Y + 3.0L * ref_Z);
 
-    long double u_prime = u / (13.0 * l) + u0;
-    long double v_prime = v / (13.0 * l) + v0;
+    long double u_prime = u / (13.0L * l) + u0;
+    long double v_prime = v / (13.0L * l) + v0;
 
     if (l > K * E)
-        Y = ref_Y * powl((l + 16.0) / 116.0, 3);
+        Y = ref_Y * powl((l + 16.0L) / 116.0L, 3.0L);
     else
-        Y = ref_Y * l * (powl(3.0 / 29.0, 3));
+        Y = ref_Y * l * (powl(3.0L / 29.0L, 3.0L));
 
-    X = Y * 9.0 * u_prime / 4.0 / v_prime;
-    Z = Y * (12.0 - 3 * u_prime - 20 * v_prime) / 4.0 / v_prime;
+    X = Y * 9.0L * u_prime / 4.0L / v_prime;
+    Z = Y * (12.0L - 3.0L * u_prime - 20.0L * v_prime) / 4.0L / v_prime;
+}
+
+void LuvToStandard(const long double &l, const long double &u, const long double &v, int &L, int &U, int &V) // convert CIELab [0..1] to CIELab L [0..100] u and v [-100..100]
+{
+    L = round(l * 100.0L);
+    U = round(u * 100.0L);
+    V = round(v * 100.0L);
+}
+
+//// CIE LCHuv
+//// See https://en.wikipedia.org/wiki/CIELUV#Cylindrical_representation_(CIELCH)
+//// All values [0..1]
+//// Common range : L [0..100] C [0..100+] h [0..360]
+//// Note that L is exactly equal to L of CIE Luv
+
+void LuvToLCHuv(const long double &u, const long double &v, long double &C, long double &H) // convert from Luv to LCHuv - L is the same so no need to convert
+{ // function checked OK with other calculators
+    C = sqrtl(powl(u * 100.0L, 2.0L) + powl(v * 100.0L, 2.0L)) / 100.0; // Chroma
+
+    H = atan2l(v, u) / 2.0L / Pi; // Hue - cartesian to polar
+    while (H < 0) // Hue in range [0..1]
+        H += 1.0L;
+    while (H > 1)
+        H -= 1.0L;
+}
+
+void LCHuvToLUV(const long double &C, const long double &H, long double &u, long double &v) // convert from LCHuv to LUV - L is the same so no need to convert
+{ // function checked OK with other calculators
+    u = C * cosl(H * 2.0L * Pi); // polar to cartesian
+    v = C * sinl(H * 2.0L * Pi);
+}
+
+void LCHuvtoStandard(const long double &l, const long double &c, const long double &h, int &L, int &C, int &H) // convert CIE LCHuv [0..1] to CIE LCHuv L [0..100] C [0..100+] H [0..359]
+{
+    L = round(l * 100.0L);
+    C = round(c * 100.0L);
+    H = round(h * 360.0L);
 }
 
 //// Hunter Lab (HLAB)
@@ -804,12 +930,12 @@ void XYZtoHLAB(const long double &X, const long double &Y, const long double &Z,
     }
     else {
         // reference white in XYZ
-        long double ref_X = 0.95047;
-        long double ref_Y = 1.0;
-        long double ref_Z = 1.08883;
+        long double ref_X = 0.95047L;
+        long double ref_Y = 1.0L;
+        long double ref_Z = 1.08883L;
 
-        long double Ka = (175.0 / 198.04) * (ref_X + ref_Y); // CIE standard values VS white point
-        long double Kb = ( 70.0f / 218.11) * (ref_Y + ref_Z);
+        long double Ka = (175.0L / 198.04L) * (ref_X + ref_Y); // CIE standard values VS white point
+        long double Kb = ( 70.0L / 218.11L) * (ref_Y + ref_Z);
 
         L = sqrtl(Y / ref_Y); // final values
         A = Ka * (((X / ref_X) - (Y / ref_Y)) / sqrtl(Y / ref_Y));
@@ -820,66 +946,27 @@ void XYZtoHLAB(const long double &X, const long double &Y, const long double &Z,
 void HLABtoXYZ(const long double &L, const long double &A, const long double &B, long double &X, long double &Y, long double &Z) // convert from Hunter Lab to XYZ
 { // function checked OK with other calculators
     // reference white in XYZ
-    long double ref_X = 0.95047;
-    long double ref_Y = 1.0;
-    long double ref_Z = 1.08883;
+    long double ref_X = 0.95047L;
+    long double ref_Y = 1.0L;
+    long double ref_Z = 1.08883L;
 
-    long double Ka = (175.0 / 198.04) * (ref_Y + ref_X); // CIE standard values VS white point
-    long double Kb = ( 70.0f / 218.11) * (ref_Y + ref_Z);
+    long double Ka = (175.0L / 198.04L) * (ref_Y + ref_X); // CIE standard values VS white point
+    long double Kb = ( 70.0L / 218.11L) * (ref_Y + ref_Z);
 
-    Y = powl(L / ref_Y, 2); // final values
+    Y = powl(L / ref_Y, 2.0L); // final values
     X =  (A / Ka * sqrtl(Y / ref_Y) + (Y / ref_Y)) * ref_X;
     Z = -(B / Kb * sqrtl(Y / ref_Y) - (Y / ref_Y)) * ref_Z;
 
 }
 
-//// CIE LCHab
-//// See https://en.wikipedia.org/wiki/CIELAB_color_space#Cylindrical_representation:_CIELCh_or_CIEHLC
-//// All values [0..1]
-//// Common range : L [0..100] C [0..100] h [0..360]
-//// Note that L is exactly equal to L of CIE L*a*b*
-
-void LABtoLCHab(const long double &A, const long double &B, long double &C, long double &H) // convert from LAB to HLC - L is the same so no need to convert
-{ // function checked OK with other calculators
-    C = sqrtl(powl(A * 127.0, 2) + powl(B * 127.0, 2)) / 100.0; // Chroma
-
-    H = atan2l(B, A) / 2.0 / Pi; // Hue - cartesian to polar
-    while (H < 0) // Hue in range [0..1]
-        H += 1;
-    while (H > 1)
-        H -= 1;
+void HLABtoStandard(const long double &l, const long double &a, const long double &b, int &L, int &A, int &B) // convert Hunter Lab [0..1] to Hunter Lab L [0..100] a and b [-100..100]
+{
+    L = round(l * 100.0L);
+    A = round(a * 100.0L);
+    B = round(b * 100.0L);
 }
 
-void LCHabToLAB(const long double &C, const long double &H, long double &A, long double &B) // convert from HLC to LAB - L is the same so no need to convert
-{ // function checked OK with other calculators
-    A = C * cosl(H * 2.0 * Pi); // polar to cartesian
-    B = C * sinl(H * 2.0 * Pi);
-}
-
-//// CIE LCHuv
-//// See https://en.wikipedia.org/wiki/CIELUV#Cylindrical_representation_(CIELCH)
-//// All values [0..1]
-//// Common range : L [0..100] C [0..100] h [0..360]
-//// Note that L is exactly equal to L of CIE Luv
-
-void LuvToLCHuv(const long double &u, const long double &v, long double &C, long double &H) // convert from Luv to LCHuv - L is the same so no need to convert
-{ // function checked OK with other calculators
-    C = sqrtl(powl(u * 100.0, 2) + powl(v * 100.0, 2)) / 100.0; // Chroma
-
-    H = atan2l(v, u) / 2.0 / Pi; // Hue - cartesian to polar
-    while (H < 0) // Hue in range [0..1]
-        H += 1;
-    while (H > 1)
-        H -= 1;
-}
-
-void LCHuvToLUV(const long double &C, const long double &H, long double &u, long double &v) // convert from LCHuv to LUV - L is the same so no need to convert
-{ // function checked OK with other calculators
-    u = C * cosl(H * 2.0 * Pi); // polar to cartesian
-    v = C * sinl(H * 2.0 * Pi);
-}
-
-//// LMS
+//// CIE CAM02 LMS
 //// See https://en.wikipedia.org/wiki/LMS_color_space
 //// All values [0..1]
 //// Common range : no range specified
@@ -887,9 +974,9 @@ void LCHuvToLUV(const long double &C, const long double &H, long double &u, long
 void XYZtoLMS(const long double &X, const long double &Y, const long double &Z, long double &L, long double &M, long double &S) // convert from XYZ to LMS
 { // couldn't find any online calculator to check this function, but it is pretty straightforward
     // CIECAM02 is the successor to CIECAM97s - the best matrix so far, just coordinates change
-    L = 0.7328  * X + 0.4296 * Y - 0.1624 * Z;
-    M = -0.7036 * X + 1.6975 * Y + 0.0061 * Z;
-    S = 0.0030  * X + 0.0136 * Y + 0.9834 * Z;
+    L =  0.7328L * X + 0.4296L * Y - 0.1624L * Z;
+    M = -0.7036L * X + 1.6975L * Y + 0.0061L * Z;
+    S =  0.0030L * X + 0.0136L * Y + 0.9834L * Z;
 }
 
 //// CMYK
@@ -908,16 +995,16 @@ long double ClampCMYK(const long double &value) // don't divide by 0 !
 void RGBtoCMYK(const long double &R, const long double &G, const long double &B, long double &C, long double &M, long double &Y, long double &K) // convert from RGB to CYMK
 {
     K = ClampCMYK(1 - std::max(std::max(R, G), B));
-    C = ClampCMYK((1 - R - K) / (1 - K));
-    M = ClampCMYK((1 - G - K) / (1 - K));
-    Y = ClampCMYK((1 - B - K) / (1 - K));
+    C = ClampCMYK((1.0L - R - K) / (1.0L - K));
+    M = ClampCMYK((1.0L - G - K) / (1.0L - K));
+    Y = ClampCMYK((1.0L - B - K) / (1.0L - K));
 }
 
 void CMYKtoRGB(const long double &C, const long double &M, const long double &Y, const long double &K, long double &R, long double &G, long double &B) // convert from CMYK to RGB
 {
-    R = (1 - C) * (1 - K);
-    G = (1 - M) * (1 - K);
-    B = (1 - Y) * (1 - K);
+    R = (1.0L - C) * (1.0L - K);
+    G = (1.0L - M) * (1.0L - K);
+    B = (1.0L - Y) * (1.0L - K);
 
     // R, G and B must be in [0..1]
     if (R > 1)
@@ -932,4 +1019,12 @@ void CMYKtoRGB(const long double &C, const long double &M, const long double &Y,
         G = 0;
     if (B < 0)
         B = 0;
+}
+
+void CMYKtoStandard(const long double &c, const long double &m, const long double &y, const long double &k, int &C, int &M, int &Y, int &K) // convert CMYK [0..1] to CMYK [0..100]
+{
+    C = round(c * 100.0L);
+    M = round(m * 100.0L);
+    Y = round(y * 100.0L);
+    K = round(k * 100.0L);
 }

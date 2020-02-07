@@ -1,12 +1,23 @@
 # dominant-colors-rgb-wheel
 ## Find dominant colors in images with QT and OpenCV, with a nice GUI to show results on a RGB wheel - Colors analysis includes color schemes, brightness and cool/warm distribution - All algorithms done in CIELab color space!
-### v1.0 - 2020-01-11
+### v2.0 - 2020-02-06
 
 ![Screenshot - Global](screenshots/screenshot-gui.jpg?raw=true)
 <br/>
 
 ## HISTORY
 
+* v2.0: 
+	 * Added my own dominant colors algorithm, based on HSL hues and Chroma+Lightness from CIELab
+	 * Many improvements for exact calculus
+	 * Greatly improved "Regroup colors" algorithm
+	 * Now each color scheme is an independant layer above the Wheel image so you can show and hide it with the corresponding button
+	 * Improved color distribution graph based on 24 hues
+	 * Added independant computed images save buttons
+	 * Source and Quantized images now zoomable
+	 * Show Palette with several sort algorithms
+	 * Select number of colors to show in Palette image even after having computed it
+	 * Picked color is now identified in Palette and Quantized images, and on the Wheel too
 * v1.0: LOTS of changes, including many bug fixes:
     * All algorithms now compute in CIELab color space, using slower but precise CIEDE2000 formula to compute color distances
     * Added sophisticated image filters like "Filter grays" to only keep colors in final results, and "Regroup" to group similar scattered values
@@ -72,13 +83,18 @@ This software should also work under Microsoft Windows, with adjustments: if you
 
 * How many dominant colors do you want? Choose wisely, bigger values take greater time to compute
 
-* You have to choose the algorithm first. Three are at your service!
-    * All the algorithms now compute in CIELab color space. I coded my own implementation of color conversions, because the ones from OpenCV were not accurate enough (for example loss when converting to CIE XYZ then to CIELab and back to RGB)
-	 * Eigen vectors: the fastest of the three - source: http://aishack.in/tutorials/dominant-color/ - this one was trickier to adapt to work in CIELab, I also unlocked the 128 colors limit
+* You have to choose the algorithm first. Four are at your service!    
+    * All the algorithms are computed in CIELab color space. I coded my own implementation of color conversions, because the ones from OpenCV were not accurate enough (for example loss when converting to CIE XYZ then to CIELab and back to RGB)
+    * Sectored-means: this is my own algorithm (NOT exactly a quantization algorithm). The image is first categorized in 24 color sectors (Hue from HSL color space), their range was carefully chosen and tested. Then each color sector is split with Lightness and Chroma (from CIELab color space) categories. Their ranges were also carefully chosen. Then the color mean is computed for each Hue+Lightness+Chroma category	 
+	 * Eigen vectors: source: http://aishack.in/tutorials/dominant-color/ - this one was trickier to adapt to work in CIELab, I also unlocked the 256 colors limit
 	 * K-means: a well-known algorithm to aggregate significant data - source: https://jeanvitor.com/k-means-image-segmentation-opencv/
 	 * Mean-shift: NOT exactly a quantization algorithm, but it reduces colors in an interesting way. It is also a bit destructive for the image with higher parameters values. As the number of computed colors is variable with this algorithm, when you choose the number of colors to quantize, only the N most used colors in the Quantized image are shown in the Palette
 
 * Click "Analyze" to finish: you end up with an updated Color Wheel, a Quantized image and a Palette. The elapsed time is shown in the LCD display
+
+* You can now zoom the Source and Quantized images:
+    * Click with the right mouse button over one of these images or use the button near them to activate, one more time to zoom out
+    * When zoomed, use the scroll bars to navigate. The two images positions are synchronized
 
 ![Screenshot - Quantized](screenshots/screenshot-quantized.jpg?raw=true)
 
@@ -88,10 +104,10 @@ This software should also work under Microsoft Windows, with adjustments: if you
         * "grays" means not only gray values, because black and white are particular grays
         * the blacks, whites and grays parameters are the percentage you want to filter. This percentage is from the distance in CIELab space to the white and black points. For grays the distance is from the "black to white" grayscale
         * filtered values are shown in black color on the Quantized image
-    * "Regroup" filter:
-        * it helps clustering scattered similar color values
+    * "Regroup colors" filter:
+        * it helps clustering scattered similar color values, mostly with highest asked number of colors
         * for example if you obtain 3 green hues near each other, it can be interesting to merge them in one big color value in the Palette
-        * two parameters are used: "angle" is the Hue difference (in degrees) on the color wheel, and "distance" is the CIELab color distance between two color values
+        * colors are merge by "distance": it is the CIELab color distance between two color values
         * example without and with Regroup filter:
         
 ![Screenshot - Regroup off](screenshots/screenshot-regroup-off.jpg?raw=true)
@@ -116,7 +132,7 @@ This software should also work under Microsoft Windows, with adjustments: if you
 
 * The Color Wheel representation is based on a quasi-HSL color space:
 	 * Hue is represented by the angle in degrees in the circle (clockwise, where red = 0) - Hue is computed in HSL color space
-	 * Saturation is not used directly here, only the colors in disks show the values
+	 * Chroma is not used directly here, only the colors in disks show the values
 	 * Lightness is computed in CIELab color space, which is more human-perception-accurate. Darker color values are near the center of the wheel, and lighter near the inner circle. Pure white, gray and black colors are aligned by default on the red (H=0) axis
 
 * The main 12 additive colors can be found on the outer circle, as a helper:
@@ -125,11 +141,13 @@ This software should also work under Microsoft Windows, with adjustments: if you
 
 * You can increase or decrease the whole bunch of color disks sizes with the slider, or use the mouse wheel - useful when using higher numbers of colors to quantize
 
+* Layers can be added to the Color wheel, more about this later
+
 ### PALETTE
 
 ![Screenshot - Palette](screenshots/screenshot-palette.jpg?raw=true)
 
-* Another feature is the Palette: it show all the dominant colors, and their proportional percentage in the Quantized image
+* Another feature is the Palette: it shows all the dominant colors, and their proportional percentage in the Quantized image
 
 * Speaking of it, the Quantized image shows the image transposed to the dominant colors Palette (exact palette for Eigen and K-means algorithm). This way you can visually check if the number of dominant colors chosen at the beginning is sufficient or too wide
 
@@ -140,23 +158,31 @@ This software should also work under Microsoft Windows, with adjustments: if you
 	     * I used a text file containing more than 9000 RGB values and corresponding color names from http://mkweb.bcgsc.ca/colornames
 		  * if the exact RGB value is found the name is displayed, if not the nearest color is displayed (using euclidian distance in CIELab color space between the two colors)
 		  * remember to put color-names.csv in the same folder as the executable (particularly in your compiling folder)
+	 * this picked color is identified in the Quantized image, Palette image and Color Wheel with white color
+	 
+* You can sort the palette colors, use the Sort algorithm button. The "Scale" option shows each color with the percentage of use as a scale
+
+* You can choose the number of shown colors with the "add" or "reduce" buttons (arrows)
 
 * If you want to keep the results, click on the "Save results" button on the Color Wheel. They will be saved with the provided file name + suffixes:
 	* Palette: filename-palette.png
 	* Color Wheel: filename-color-wheel.png
 	* Quantized image: filename-quantized.png
-	* CSV file of palette: filename-palette.csv - RGB values (decimal and hexadecimal) and percentage are saved
+	* CSV file of palette: filename-palette.csv - RGB values (decimal and hexadecimal) and percentage and main color spaces values are saved
 	* Several wide-used palette formats, such as Photoshop, Paintshop Pro and Corel Draw
 
 ### ANALYZE
 ![Screenshot - Analyze](screenshots/screenshot-analyze.jpg?raw=true)
 
-* This is the big bonus of this version! Just click on the "Analyze" button to get interesting information on:
+* Just click on the "Analyze" button to get interesting information about:
     * Color schemes:
         * find out how your colors are distributed, which schemes are used
-        * the big buttons, when lighted, show if the image has values that are complementary, triadic, etc. The color bar indicates which colored lines are drawn on the Color wheel, which are drawn between color disks or on the outer circle
+        * the big Color Schemes buttons:
+            * when lighted, show if the image has values that are complementary, triadic, etc
+            * the color bar indicates which colored lines are drawn on the Color wheel, which are drawn between color disks or on the outer circle
+            * when clicked, each color scheme can be shown or hidden
         * two options: 
-            * "on borders": the lines are normally drawn between the colored disks. With this option they are drawn on the borders of the wheel
+            * "on borders": the lines are drawn between the colored disks. With this option they are drawn on the borders of the wheel
             * "only 12 hues": lines are aligned on the nearest color on the outer circle of the wheel
         * list of color schemes:
             * complementary (red lines): opposite colors, high contrast, vibrant look
@@ -182,7 +208,7 @@ This software should also work under Microsoft Windows, with adjustments: if you
     * Perceived brightness:
         * human eyes perceive brightness of a color in a different way than pure computed values
         * the percentage shown is the global perceived brightness of the image
-    * "Min. color" parameter: only consider color values representing more than x% of the Quantized image
+    * "Min. color" parameter: only consider color values int the palette, representing more than x% of the Quantized image
 
 ### ACCURACY
 
@@ -194,8 +220,9 @@ This software should also work under Microsoft Windows, with adjustments: if you
 
 ![Screenshot - 12 colors on wheel](screenshots/screenshot-12-colors-wheel.jpg?raw=true)    
 
-* With more complex images, the results are a bit different. Here is an example of the same image computed with the algorithms. Order: Eigen vectors, K-Means clustering and Mean-shift clustering
+* With more complex images, the results are a bit different. Here is an example of the same image computed with the algorithms. Order: Sectored-Means, Eigen vectors, K-Means clustering and Mean-shift clustering
 
+![Screenshot - compare Eigen](screenshots/screenshot-compare-sectored-means.jpg?raw=true)
 ![Screenshot - compare Eigen](screenshots/screenshot-compare-eigen.jpg?raw=true)
 ![Screenshot - compare K-means](screenshots/screenshot-compare-k-means.jpg?raw=true)
 ![Screenshot - compare Mean-shift](screenshots/screenshot-compare-mean-shift.jpg?raw=true)

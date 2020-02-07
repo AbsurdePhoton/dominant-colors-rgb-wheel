@@ -5,7 +5,7 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#                v1.2 - 2020/01/11
+#                v1.3 - 2020/02/06
 #
 #   - eigen vectors algorithm
 #   - K-means algorithm
@@ -18,12 +18,149 @@
 #include "color-spaces.h"
 #include "mat-image-tools.h"
 
+///////////////////////////////////////////////
+////         Sectored-Means algorithm
+///////////////////////////////////////////////
+// Original algorithm by AbsurdePhoton
+
+int WhichColorSector(const int &H) // get the color sector of a given Hue in HSL (H in degrees)
+{
+    int h = H % 360; // Hue in [0..359]
+    if (h < 8) // reds come across the circle origin
+        h += 360.0; // get a continuous range
+
+    int hPrime; // value to return
+    for (hPrime = 0; hPrime < nb_color_sectors; hPrime++) // parse Hue ranges
+        if ((h >= color_sectors[hPrime].begin) and (h < color_sectors[hPrime].end)) // is this the right range ?
+            break; // yes !
+
+    if (hPrime == nb_color_sectors) // didn't find a range ?
+        hPrime = -1; // dummy value
+
+    return hPrime; // return color sector
+}
+
+int WhichLightnessCategory(const int &L) // get the Lightness category (L from CIELab)
+{
+    int l;
+    for (l = 0; l < nb_lightness_categories; l++) // parse Lightness ranges
+        if ((L >= lightness_categories[l].begin) and (L < lightness_categories[l].end)) // is this the right range ?
+            break; // yes !
+
+    if (l == nb_lightness_categories) // didn't find a range ?
+        l = -1; // dummy value
+
+    return l; // return Lightness catgory
+}
+
+int WhichChromaCategory(const int &C, const int &colorSector) // get the Chroma category (C from CIE LChab)
+{
+    long double max = color_sectors[colorSector].max; // get highest Chroma for color sector of value to compute
+    int Crectified = round((long double)C / max * 100.0L); // Chroma in [0..100]
+
+    int c;
+    for (c = 0; c < nb_chroma_categories; c++) // parse Chroma ranges
+        if ((Crectified >= chroma_categories[c].begin) and (Crectified < chroma_categories[c].end)) // is this the right range ?
+            break; // yes !
+
+    if (c == nb_chroma_categories) // didn't find a range ?
+        c = -1; // dummy value
+
+    return c; // return Chroma category
+}
+
+void SectoredMeansSegmentationLevels(const cv::Mat &image, const int &nb_levels, cv::Mat &quantized) // image segmentation by color sector mean (H from HSL)
+{
+    quantized = cv::Mat::zeros(image.rows, image.cols, CV_8UC3); // init quantized image = black
+    cv::Mat mask_sector[nb_color_sectors][nb_levels][nb_levels]; // mask for each sector
+    for (int s = 0; s < nb_color_sectors; s++) // init these masks to black
+        for (int l = 0; l < nb_levels; l++)
+            for (int c = 0; c < nb_levels; c++)
+                mask_sector[s][l][c] = cv::Mat::zeros(image.rows, image.cols, CV_8UC3); // zero mask of same size than image
+
+    cv::Vec3b RGB;
+    long double H, S, L, C, h, r, g, b;
+    for (int x = 0; x < image.cols; x++) // parse image
+        for (int y = 0; y < image.rows; y++) {
+            RGB = image.at<cv::Vec3b>(y, x); // get current pixel
+            HSLChfromRGB((long double)RGB[2] / 255.0, (long double)RGB[1] / 255.0, (long double)RGB[0] / 255.0, H, S, L, C, h); // get "HSLC" from RGB
+
+            int l = int(L * nb_levels); // get Lightness range of current pixel
+            if (l >= nb_levels - 1) // stay in range
+                l = nb_levels - 1;
+            int c = int(C * nb_levels); // get Chroma range of current pixel
+            if (c >= nb_levels - 1) // stay in range
+                c = nb_levels - 1;
+
+            H *= 360.0; // Hue in degrees
+            int s = WhichColorSector(H); // get color sector of current pixel
+            GammaCorrectionToSRGB(RGB[2] / 255.0, RGB[1] / 255.0, RGB[0] / 255.0, r, g, b); // RGB value in linear space => to compute mean
+            mask_sector[s][l][c].at<cv::Vec3b>(y, x) = cv::Vec3b(round(b * 255.0), round(g * 255.0), round(r * 255.0)); // copy pixel in the right sector mask
+        }
+
+    int nb_pal = 0;
+    for (int s = 0; s < nb_color_sectors; s++) { // for each sector
+        for (int l = 0; l < nb_levels; l++)
+            for (int c = 0; c < nb_levels; c++) {
+                cv::Mat gray; // gray mask
+                cv::cvtColor(mask_sector[s][l][c], gray, cv::COLOR_BGR2GRAY); // countNonZero works only on a 1-dimension Mat
+                if (cv::countNonZero(gray) > 0) { // does the sector mask contain any values ?
+                    cv::Scalar mean = cv::mean(mask_sector[s][l][c], gray); // compute mean of entire sector
+                    GammaCorrectionFromSRGB(mean[2] / 255.0, mean[1] / 255.0, mean[0] / 255.0, r, g, b); // get rgb back from sRGB mean value
+                    quantized.setTo(cv::Vec3b(round(b * 255.0), round(g * 255.0), round(r * 255.0)), gray); // plot this mean color to quantized image from mask
+                    nb_pal++; // one more color in palette
+            }
+        }
+    }
+}
+
+void SectoredMeansSegmentationCategories(const cv::Mat &image, cv::Mat &quantized) // image segmentation by color sector mean (H from HSL)
+{
+    quantized = cv::Mat::zeros(image.rows, image.cols, CV_8UC3); // init quantized image = black
+    cv::Mat mask_sector[nb_color_sectors][nb_lightness_categories][nb_chroma_categories]; // mask for each sector
+    for (int s = 0; s < nb_color_sectors; s++) // init these masks to black
+        for (int l = 0; l < nb_lightness_categories; l++)
+            for (int c = 0; c < nb_chroma_categories; c++)
+                mask_sector[s][l][c] = cv::Mat::zeros(image.rows, image.cols, CV_8UC3); // zero mask of same size than image
+
+    cv::Vec3b RGB;
+    long double H, S, L, C, h, r, g, b;
+    for (int x = 0; x < image.cols; x++) // parse image
+        for (int y = 0; y < image.rows; y++) {
+            RGB = image.at<cv::Vec3b>(y, x); // get current pixel
+            HSLChfromRGB((long double)RGB[2] / 255.0, (long double)RGB[1] / 255.0, (long double)RGB[0] / 255.0, H, S, L, C, h); // get "HSLC" from RGB
+
+            int s = WhichColorSector(round(H * 360.0)); // get sector and C and L categories for current pixel
+            int l = WhichLightnessCategory(round(L * 100.0));
+            int c = WhichChromaCategory(round(C * 100.0), s);
+            GammaCorrectionToSRGB(RGB[2] / 255.0, RGB[1] / 255.0, RGB[0] / 255.0, r, g, b); // RGB value in linear space => to compute mean
+            mask_sector[s][l][c].at<cv::Vec3b>(y, x) = cv::Vec3b(round(b * 255.0), round(g * 255.0), round(r * 255.0)); // copy pixel in the right sector mask
+        }
+
+    int nb_pal = 0;
+    for (int s = 0; s < nb_color_sectors; s++) { // for each sector
+        for (int l = 0; l < nb_lightness_categories; l++)
+            for (int c = 0; c < nb_chroma_categories; c++) {
+                cv::Mat gray; // gray mask
+                cv::cvtColor(mask_sector[s][l][c], gray, cv::COLOR_BGR2GRAY); // countNonZero works only on a 1-dimension Mat
+                if (cv::countNonZero(gray) > 0) { // does the sector mask contain any values ?
+                    cv::Scalar mean = cv::mean(mask_sector[s][l][c], gray); // compute mean of entire sector
+                    GammaCorrectionFromSRGB(mean[2] / 255.0, mean[1] / 255.0, mean[0] / 255.0, r, g, b); // get rgb back from sRGB mean value
+                    quantized.setTo(cv::Vec3b(round(b * 255.0), round(g * 255.0), round(r * 255.0)), gray); // plot this mean color to quantized image from mask
+                    nb_pal++; // one more color in palette
+            }
+        }
+    }
+}
+
 ////////////////////////////////////////////////////////////
 ////                Eigen vectors algorithm
 ////////////////////////////////////////////////////////////
 
 // code adapted from Utkarsh Sinha, no more 256 colors limit by using int for "class id"
 // source : http://aishack.in/tutorials/dominant-color/
+// works for any color space, because values are in range [0..1]
+// only implemented CIELab though
 
 std::vector<color_node*> GetLeaves(color_node *root)
 {
@@ -235,6 +372,8 @@ color_node* GetMaxEigenValueNode(color_node *current) {
 
 std::vector<cv::Vec3f> DominantColorsEigenCIELab(const cv::Mat &img, const int &nb_colors, cv::Mat &quantized) // Eigen algorithm
 {
+    // CIELab values are in range [0..1]
+
     const int width = img.cols;
     const int height = img.rows;
 
@@ -256,7 +395,7 @@ std::vector<cv::Vec3f> DominantColorsEigenCIELab(const cv::Mat &img, const int &
     }
 
     std::vector<cv::Vec3f> colors = GetDominantColors(root);
-    quantized = GetQuantizedImage(classes, root);
+    quantized = GetQuantizedImage(classes, root); // the quantized image has values in range [0..1]
     return colors;
 }
 

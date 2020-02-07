@@ -3,7 +3,7 @@
  * OpenCV image tools library
  * Author: AbsurdePhoton
  *
- * v2.1 - 2020/01/11
+ * v2.2 - 2020/02/06
  *
  * Convert mat images to QPixmap or QImage and vice-versa
  * Brightness, Contrast, Gamma, Equalize, Color Balance
@@ -15,6 +15,7 @@
  * Gray gradients
  * Red-cyan anaglyph tints
  * Count number of RGB colors in image
+ * Special image copy with zero as transparent value
  *
 #-------------------------------------------------*/
 
@@ -30,20 +31,6 @@ using namespace std;
 using namespace cv;
 
 ///////////////////////////////////////////////////////////
-//// Utils
-///////////////////////////////////////////////////////////
-
-bool IsRGBColorDark(int red, int green, int blue) // tell if a RGB color is dark or not
-{
-  double brightness;
-  brightness = (red * 299) + (green * 587) + (blue * 114);
-  brightness = brightness / 255000;
-
-  // values range from 0 to 1 : anything greater than 0.5 should be bright enough for dark text
-  return (brightness <= 0.5);
-}
-
-///////////////////////////////////////////////////////////
 //// Conversions from QImage and QPixmap to Mat
 ///////////////////////////////////////////////////////////
 
@@ -53,33 +40,33 @@ Mat QImage2Mat(const QImage &source) // Convert QImage to Mat, every number of c
 
         case QImage::Format_ARGB32: // 8-bit, 4 channel
         case QImage::Format_ARGB32_Premultiplied: {
-        Mat temp(source.height(), source.width(), CV_8UC4,
-                    const_cast<uchar*>(source.bits()),
-                    static_cast<size_t>(source.bytesPerLine()));
-        return temp;
+            Mat temp(source.height(), source.width(), CV_8UC4,
+                        const_cast<uchar*>(source.bits()),
+                        static_cast<size_t>(source.bytesPerLine()));
+            return temp;
         }
 
         case QImage::Format_RGB32: { // 8-bit, 3 channel
-        Mat temp(source.height(), source.width(), CV_8UC4,
-                    const_cast<uchar*>(source.bits()),
-                    static_cast<size_t>(source.bytesPerLine()));
-        Mat tempNoAlpha;
-        cvtColor(temp, tempNoAlpha, COLOR_BGRA2BGR);   // drop the all-white alpha channel
+            Mat temp(source.height(), source.width(), CV_8UC4,
+                        const_cast<uchar*>(source.bits()),
+                        static_cast<size_t>(source.bytesPerLine()));
+            Mat tempNoAlpha;
+            cvtColor(temp, tempNoAlpha, COLOR_BGRA2BGR);   // drop the all-white alpha channel
         return tempNoAlpha;
         }
 
         case QImage::Format_RGB888: { // 8-bit, 3 channel
-        QImage swapped = source.rgbSwapped();
-        return Mat(swapped.height(), swapped.width(), CV_8UC3,
+            QImage swapped = source.rgbSwapped();
+            return Mat(swapped.height(), swapped.width(), CV_8UC3,
                        const_cast<uchar*>(swapped.bits()),
                        static_cast<size_t>(swapped.bytesPerLine())).clone();
         }
 
         case QImage::Format_Indexed8: { // 8-bit, 1 channel
-        Mat temp(source.height(), source.width(), CV_8UC1,
-                    const_cast<uchar*>(source.bits()),
-                    static_cast<size_t>(source.bytesPerLine()));
-        return temp;
+            Mat temp(source.height(), source.width(), CV_8UC1,
+                        const_cast<uchar*>(source.bits()),
+                        static_cast<size_t>(source.bytesPerLine()));
+            return temp;
         }
 
         default:
@@ -304,7 +291,7 @@ Mat ShiftFrame(const Mat &source, const int &nb_pixels, const shift_direction &d
 //// Clipping & Resizing
 ///////////////////////////////////////////////////////////
 
-Mat CopyFromImage (Mat source, const Rect &frame) // copy part of an image
+Mat CopyFromImage(Mat source, const Rect &frame) // copy part of an image
 {
     if (source.channels() == 1)
         cvtColor(source, source, COLOR_GRAY2BGR);
@@ -316,13 +303,76 @@ Mat ResizeImageAspectRatio(const Mat &source, const Size &frame) // Resize image
     double zoomX = double(frame.width) / source.cols; // try vertical and horizontal ratios
     double zoomY = double(frame.height) / source.rows;
     double zoom;
-    if (zoomX < zoomY) zoom = zoomX; // the lowest fit the view
-        else zoom = zoomY;
+    if (zoomX < zoomY)
+        zoom = zoomX; // the lowest fit the view
+    else
+        zoom = zoomY;
 
     Mat dest;
     resize(source, dest, Size(int(source.cols*zoom), int(source.rows*zoom)), 0, 0, INTER_AREA); // resize
 
     return dest;
+}
+
+///////////////////////////////////////////////////////////
+//// Special copy
+///////////////////////////////////////////////////////////
+
+Mat CopyNonZero(const Mat &source1, const Mat &source2) // merge two images with zero as transparent value - first over the second
+{
+    if ((source1.size != source2.size) and (source1.type() != source2.type())) // images must be of same size and type
+        return Mat();
+
+    Mat result;
+    source2.copyTo(result); // prepare result image
+
+    Vec3b pixel;
+    for (int x = 0; x < source1.cols; x++) // parse 1st image
+        for (int y = 0; y < source1.rows; y++) {
+            pixel = source1.at<Vec3b>(y, x); // current pixel
+            if (pixel != Vec3b(0, 0, 0)) // is it black ?
+                result.at<Vec3b>(y, x) = pixel; // copy non-zero values only
+        }
+
+    return result;
+}
+
+Mat CopyNonZeroAlpha(const Mat &source, const Mat &dest) // merge two images with alpha with zero as transparent value - first over the second
+{
+    if ((source.size != dest.size) and (source.type() != dest.type())) // images must be of same size and type
+        return Mat();
+
+    Mat result;
+    dest.copyTo(result); // prepare result image
+
+    Vec4b pixel;
+    for (int x = 0; x < source.cols; x++) // parse 1st image
+        for (int y = 0; y < source.rows; y++) {
+            pixel = source.at<Vec4b>(y, x); // current pixel
+            if (pixel != Vec4b(0, 0, 0, 0)) // is it black ?
+                result.at<Vec4b>(y, x) = pixel; // copy non-zero values only
+        }
+
+    return result;
+}
+
+///////////////////////////////////////////////////////////
+//// Alpha channel
+///////////////////////////////////////////////////////////
+
+Mat AddAlphaToImage(const Mat &source) // add alpha channel to image
+{
+  std::vector<cv::Mat> matChannels;
+  cv::split(source, matChannels); // split image in separate channels
+
+  // create alpha channel
+  cv::Mat alpha = matChannels.at(0) + matChannels.at(1) + matChannels.at(2); // compute alpha channel
+  matChannels.push_back(alpha); // add it to the channels stack
+
+  Mat result;
+  cv::merge(matChannels, result); // merge back channels
+
+  return result;
 }
 
 ///////////////////////////////////////////////////////////
@@ -428,7 +478,7 @@ double GrayCurve(const int &color, const int &type, const int &begin, const int 
     return color;
 }
 
-float EuclideanDistance(Point center, Point point, int radius){ // return distance between 2 points
+float EuclideanDistanceRadius(Point center, Point point, int radius){ // return distance between 2 points
     float distance = sqrt(std::pow(center.x - point.x, 2) + std::pow(center.y - point.y, 2));
 
     if (distance > radius) return radius; // no value beyond radius
@@ -453,7 +503,7 @@ void GradientFillGray(const int &gradient_type, Mat &img, const Mat &msk, const 
         case (gradient_linear): { // grayscale is spread along the line
             int A = (endPoint.x - beginPoint.x); // horizontal difference
             int B = (endPoint.y - beginPoint.y); // vertical difference
-            int C1 = A * beginPoint.x + B * beginPoint.y; // sort of euclidian distance, but no need to compute sqrt values
+            int C1 = A * beginPoint.x + B * beginPoint.y; // vectors
             int C2 = A * endPoint.x + B * endPoint.y;
 
             float CO; // will contain color values
@@ -467,7 +517,7 @@ void GradientFillGray(const int &gradient_type, Mat &img, const Mat &msk, const 
                             else if (C >= C2) CO = endColor; // after end point : end color
                                 else CO = round(GrayCurve(float(beginColor * (C2 - C) + endColor * (C - C1))/(C2 - C1),
                                                     curve, beginColor, endColor - beginColor)); // C0 = percentage between begin and end colors, "shaped" by gray curve
-                        img.at<uchar>(row, col) = CO; // set grayscale to image
+                        img.at<uchar>(row, col) = CO; // set pixel to image
                     }
             return; // done ! -> exit
         }
@@ -492,9 +542,9 @@ void GradientFillGray(const int &gradient_type, Mat &img, const Mat &msk, const 
                         }
                     }
 
-            Point newEndPoint; // invert the vector
-            newEndPoint.x = 2* beginPoint.x - endPoint.x;
-            newEndPoint.y = 2* beginPoint.y - endPoint.y;
+            Point newEndPoint; // invert vector
+            newEndPoint.x = 2 * beginPoint.x - endPoint.x;
+            newEndPoint.y = 2 * beginPoint.y - endPoint.y;
 
             A = (newEndPoint.x - beginPoint.x); // same as before, but with new inverted vector
             B = (newEndPoint.y - beginPoint.y);
@@ -523,7 +573,7 @@ void GradientFillGray(const int &gradient_type, Mat &img, const Mat &msk, const 
             for (int row = area.y; row < area.y + area.height; row++) // scan entire mask
                 for (int col = area.x; col < area.x + area.width; col++)
                     if (msk.at<uchar>(row, col) != 0) { // non-zero pixel in mask
-                        CO = round(GrayCurve(beginColor + EuclideanDistance(beginPoint, Point(col, row), radius) / radius * (endColor - beginColor),
+                        CO = round(GrayCurve(beginColor + EuclideanDistanceRadius(beginPoint, Point(col, row), radius) / radius * (endColor - beginColor),
                                              curve, beginColor, endColor - beginColor)); // pixel in temp gradient mask = distance percentage, "shaped" by gray curve
                         img.at<uchar>(row, col) = CO;
                     }
@@ -604,7 +654,7 @@ int CountRGBUniqueValues(const cv::Mat &image) // count number of RGB colors in 
 {
     std::set<int> unique;
 
-    for (Vec3b &p : cv::Mat_<Vec3b>(image)) { // iterate over pixels (assummes: CV_8UC3 !)
+    for (Vec3b &p : cv::Mat_<Vec3b>(image)) { // iterate over pixels (assummes CV_8UC3 !)
         int n = (p[0] << 16) | (p[1] << 8) | (p[2]); // "hash" representation of the pixel
         unique.insert(n);
     }
@@ -648,4 +698,81 @@ cv::Mat ImgLabToRGB(const cv::Mat &source) // convert Lab image to RGB
         }
 
     return output;
+}
+
+void CreateCIELabPalettefromRGB(const int &Rvalue, const int &Gvalue, const int &Bvalue, const int &paletteSize, const int &sections,
+                                const std::string filename, const bool &grid, const int &gap, const bool &invertCL) // create Lightness * Chroma palette image for one RGB color
+{
+    cv::Mat palette = cv::Mat::zeros(cv::Size(paletteSize + 100, paletteSize + 100), CV_8UC3); // create blank image
+    long double unit = 1.0L / sections;
+    long double L, a, b, X, Y, Z, R, G, B, C, H;
+    RGBtoXYZ(Rvalue / 255.0, Gvalue / 255.0, Bvalue / 255.0, X, Y, Z);
+    XYZtoLAB(X, Y, Z, L, a, b);
+    LABtoLCHab(a, b, C, H);
+    for (int l = 0; l <= sections; l++) { // for each L section
+        for (int c = 0; c <= sections; c++) { // for each C section
+            if (!invertCL) {
+                C = unit * c;
+                L = unit * l;
+            }
+            else {
+                L = unit * c;
+                C = unit * l;
+            }
+
+            LCHabToLAB(C, H, a, b);
+            LABtoXYZ(L, a, b, X, Y, Z);
+            XYZtoRGBNoClipping(X, Y, Z, R, G, B); // when RGB are out of gamut, return black (0,0,0)
+
+            if (grid) { // draw grid ?
+                if ((l % 10) == 0) {
+                    cv::line(palette, cv::Point(round(l * unit * paletteSize), 0), cv::Point(round(l * unit * paletteSize), paletteSize), Vec3b(32, 32, 32), 1);
+                }
+                else
+                    if ((l % 5) == 0) {
+                        cv::line(palette, cv::Point(round(l * unit * paletteSize), 0), cv::Point(round(l * unit * paletteSize), paletteSize), Vec3b(8, 8, 8), 1);
+                }
+                if ((c % 10) == 0) {
+                    cv::line(palette, cv::Point(0, round(c * unit * paletteSize)), cv::Point(paletteSize, round(c * unit * paletteSize)), Vec3b(32, 32, 32), 1);
+                }
+                else
+                    if ((c % 5) == 0) {
+                        cv::line(palette, cv::Point(0, round(c * unit * paletteSize)), cv::Point(paletteSize, round(c * unit * paletteSize)), Vec3b(8, 8, 8), 1);
+                    }
+            }
+            cv::rectangle(palette, cv::Rect(round(l * unit * paletteSize), paletteSize - round(c * unit * paletteSize),
+                                            round(unit * paletteSize) - gap, round(unit * paletteSize) - gap),
+                                        cv::Vec3b(round(B * 255.0), round(G * 255.0), round(R * 255.0)), -1); // rectangle of current color
+        }
+    }
+    cv::imwrite("LAB-palette-" + filename + ".png", palette); // write palette to file
+}
+
+void AnalyzeCIELabCurveImage(const int &sections, const std::string filename) // create CSV file of maximum Chroma values for each Lighness step from Lightness * Chroma palette image
+{
+    cv::Mat palette = imread(filename + ".png");
+    int size = palette.cols / sections;
+
+    std::ofstream saveCSV; // file to save
+    saveCSV.open(filename + ".csv"); // save data file
+    if (saveCSV) { // if successfully open
+        saveCSV << "L-orig;C-orig;H;S;L;C;h\n"; //header
+
+        for (int x = 0; x < sections; x++) { // parse image horizontaly
+            int y = 0;
+            while ((y < sections) and (palette.at<cv::Vec3b>(y * size + size / 2, x * size + size / 2) == cv::Vec3b(0, 0, 0))) // find first non-zero value
+                y++;
+            if (y == 100) // not found ?
+                y = 99;
+
+            cv::Vec3b color = palette.at<cv::Vec3b>(y * size + size / 2, x * size + size / 2); // get "maximum" pixel value
+
+            long double H, S, L, C, h;
+            HSLChfromRGB(color[2] / 255.0L, color[1] / 255.0L, color[0] / 255.0L, H, S, L, C, h); // convert RGB
+
+            saveCSV << x << ";" << 99 - y << ";" << H * 360 << ";" << S * 100 << ";" << L * 100 << ";" << C * 100 << ";" << h * 360 << "\n"; // write result to file
+        }
+
+        saveCSV.close(); // close text file
+    }
 }
