@@ -238,3 +238,5 @@ Please note that K-means results are in fact the average of 100 runs of the form
 
 ### AbsurdePhoton
 My photographer website ''Photongénique'': www.absurdephoton.fr
+
+All the photos used on this page were shot by AbsurdePhoton, they are the only copyrighted elements of "dominant-colors-rgb-wheel".
