@@ -1,5 +1,5 @@
 # dominant-colors-rgb-wheel
-## Find dominant colors in images with QT and OpenCV, with a nice GUI to show results on a RGB wheel - Colors analysis includes color schemes, brightness and cool/warm distribution - All algorithms done in CIELab color space!
+## Find dominant colors in images with QT and OpenCV, with a nice GUI to show results on a RGB wheel - Colors analysis includes color schemes, brightness and cool/warm distribution - All algorithms done in CIELab color space! - Now with my own quantization algorithm, specially developed for this software!
 ### v2.0 - 2020-02-06
 
 ![Screenshot - Global](screenshots/screenshot-gui.jpg?raw=true)
@@ -14,7 +14,7 @@
 	 * Now each color scheme is an independant layer above the Wheel image so you can show and hide it with the corresponding button
 	 * Improved color distribution graph based on 24 hues
 	 * Added independant computed images save buttons
-	 * Source and Quantized images now zoomable
+	 * Source and Quantized images now zoomable and their navigation is synchronized
 	 * Show Palette with several sort algorithms
 	 * Select number of colors to show in Palette image even after having computed it
 	 * Picked color is now identified in Palette and Quantized images, and on the Wheel too
@@ -85,8 +85,8 @@ This software should also work under Microsoft Windows, with adjustments: if you
 
 * You have to choose the algorithm first. Four are at your service!    
     * All the algorithms are computed in CIELab color space. I coded my own implementation of color conversions, because the ones from OpenCV were not accurate enough (for example loss when converting to CIE XYZ then to CIELab and back to RGB)
-    * Sectored-means: this is my own algorithm (NOT exactly a quantization algorithm). The image is first categorized in 24 color sectors (Hue from HSL color space), their range was carefully chosen and tested. Then each color sector is split with Lightness and Chroma (from CIELab color space) categories. Their ranges were also carefully chosen. Then the color mean is computed for each Hue+Lightness+Chroma category	 
-	 * Eigen vectors: source: http://aishack.in/tutorials/dominant-color/ - this one was trickier to adapt to work in CIELab, I also unlocked the 256 colors limit
+    * Sectored-means: this is my own algorithm (NOT exactly a quantization algorithm). The image is first categorized in 24 color sectors (Hue from HSL color space), the ranges were carefully chosen and tested. Then each color sector is split into Lightness and Chroma (from CIELab color space) categories. The Chroma and Lightness ranges were also carefully chosen. Then the color mean is computed for each Hue+Lightness+Chroma category	 
+	 * Eigen vectors: source: http://aishack.in/tutorials/dominant-color/ - this one was a bit hard to adapt to work in CIELab - I also unlocked the 256 colors limit
 	 * K-means: a well-known algorithm to aggregate significant data - source: https://jeanvitor.com/k-means-image-segmentation-opencv/
 	 * Mean-shift: NOT exactly a quantization algorithm, but it reduces colors in an interesting way. It is also a bit destructive for the image with higher parameters values. As the number of computed colors is variable with this algorithm, when you choose the number of colors to quantize, only the N most used colors in the Quantized image are shown in the Palette
 
@@ -103,11 +103,11 @@ This software should also work under Microsoft Windows, with adjustments: if you
         * helps filtering all near non-color values like whites, blacks and grays, to only obtain colors in the Palette and Color wheel
         * "grays" means not only gray values, because black and white are particular grays
         * the blacks, whites and grays parameters are the percentage you want to filter. This percentage is from the distance in CIELab space to the white and black points. For grays the distance is from the "black to white" grayscale
-        * filtered values are shown in black color on the Quantized image
+        * filtered values are shown as black color on the Quantized image
     * "Regroup colors" filter:
         * it helps clustering scattered similar color values, mostly with highest asked number of colors
         * for example if you obtain 3 green hues near each other, it can be interesting to merge them in one big color value in the Palette
-        * colors are merge by "distance": it is the CIELab color distance between two color values
+        * colors are merged by "distance": it is the CIELab CIEDE2000 color distance between two color values
         * example without and with Regroup filter:
         
 ![Screenshot - Regroup off](screenshots/screenshot-regroup-off.jpg?raw=true)
@@ -126,8 +126,8 @@ This software should also work under Microsoft Windows, with adjustments: if you
 
 ![Screenshot - Color Wheel](screenshots/screenshot-color-wheel.jpg?raw=true)
 
-* The Color Wheel is where the dominant colors of the image are displayed after using the "Quantize" button:
-    * the dominant colors are shown using color disks, the size indicating the percentage of use in the image
+* The Color Wheel is where the dominant colors of the image are displayed when using the "Quantize" button:
+    * the dominant colors are shown using color disks, the size is the percentage of use in the image
     * that way, you can easily understand the color schemes and distributions
 
 * The Color Wheel representation is based on a quasi-HSL color space:
@@ -147,7 +147,7 @@ This software should also work under Microsoft Windows, with adjustments: if you
 
 ![Screenshot - Palette](screenshots/screenshot-palette.jpg?raw=true)
 
-* Another feature is the Palette: it shows all the dominant colors, and their proportional percentage in the Quantized image
+* Another feature is the Palette: it shows the dominant colors, and their proportional percentage in the Quantized image
 
 * Speaking of it, the Quantized image shows the image transposed to the dominant colors Palette (exact palette for Eigen and K-means algorithm). This way you can visually check if the number of dominant colors chosen at the beginning is sufficient or too wide
 
@@ -158,11 +158,12 @@ This software should also work under Microsoft Windows, with adjustments: if you
 	     * I used a text file containing more than 9000 RGB values and corresponding color names from http://mkweb.bcgsc.ca/colornames
 		  * if the exact RGB value is found the name is displayed, if not the nearest color is displayed (using euclidian distance in CIELab color space between the two colors)
 		  * remember to put color-names.csv in the same folder as the executable (particularly in your compiling folder)
-	 * this picked color is identified in the Quantized image, Palette image and Color Wheel with white color
+	 * the picked color is identified in the Quantized image, Palette image and Color Wheel with white color
+	 * if you pick a color and it isn't identified: only the colors shown in the Palette are selectable. Maybe you reduced the number of shown colors in the Palette, or the number of asked colors is inferior to their real number in the Quantized image? (can happen with some quantization algorithms)
 	 
 * You can sort the palette colors, use the Sort algorithm button. The "Scale" option shows each color with the percentage of use as a scale
 
-* You can choose the number of shown colors with the "add" or "reduce" buttons (arrows)
+* You can choose the number of shown colors with the "add" or "reduce" buttons (right and left arrows)
 
 * If you want to keep the results, click on the "Save results" button on the Color Wheel. They will be saved with the provided file name + suffixes:
 	* Palette: filename-palette.png
@@ -180,7 +181,7 @@ This software should also work under Microsoft Windows, with adjustments: if you
         * the big Color Schemes buttons:
             * when lighted, show if the image has values that are complementary, triadic, etc
             * the color bar indicates which colored lines are drawn on the Color wheel, which are drawn between color disks or on the outer circle
-            * when clicked, each color scheme can be shown or hidden
+            * when clicked, the color schemes can be shown or hidden
         * two options: 
             * "on borders": the lines are drawn between the colored disks. With this option they are drawn on the borders of the wheel
             * "only 12 hues": lines are aligned on the nearest color on the outer circle of the wheel
@@ -214,20 +215,21 @@ This software should also work under Microsoft Windows, with adjustments: if you
 
 ![Screenshot - 12 colors](screenshots/screenshot-12-colors-quantized.jpg?raw=true)
 
-* How efficient are the three algorithms?
+* How efficient are the four algorithms?
     * To check, I just had to test my tool on a 12-colors RGB palette I produced in 5 minutes with Photoshop, with the exact RGB values of the 12 Primary to Tertiary colors
     * First result: all the algorithms produce the same exact 12-colors palette as the source (for Mean-shift with distance and color=1). A perfect match!
+    * Why are they not aligned on a perfect circle on the Color Wheel? Because "pure" colors don't have the same Lighness: a pure blue is darker than a pure yellow. This is why I used the CIELAb color space for computation instead of HSL which is only a "translation" of RGB values
 
 ![Screenshot - 12 colors on wheel](screenshots/screenshot-12-colors-wheel.jpg?raw=true)    
 
-* With more complex images, the results are a bit different. Here is an example of the same image computed with the algorithms. Order: Sectored-Means, Eigen vectors, K-Means clustering and Mean-shift clustering
+* With more complex images, the results are a bit different. Here is an example of the same image computed with the algorithms, default options values. Order: Sectored-Means, Eigen vectors, K-Means clustering and Mean-shift clustering
 
 ![Screenshot - compare Eigen](screenshots/screenshot-compare-sectored-means.jpg?raw=true)
 ![Screenshot - compare Eigen](screenshots/screenshot-compare-eigen.jpg?raw=true)
 ![Screenshot - compare K-means](screenshots/screenshot-compare-k-means.jpg?raw=true)
 ![Screenshot - compare Mean-shift](screenshots/screenshot-compare-mean-shift.jpg?raw=true)
 
-Notice that K-means result is in fact the average of 100 runs of the formula, intialized with pseudo-random values. That means each time you run the algorithm, you get a bit different result.
+Please note that K-means results are in fact the average of 100 runs of the formula, intialized with pseudo-random values. That means each time you run the algorithm, you get a (not much) different result.
 
 <br/>
 <br/>
