@@ -3,7 +3,7 @@
  * OpenCV image tools library
  * Author: AbsurdePhoton
  *
- * v2.2 - 2020/02/06
+ * v2.3 - 2020/03/01
  *
  * Convert mat images to QPixmap or QImage and vice-versa
  * Brightness, Contrast, Gamma, Equalize, Color Balance
@@ -67,7 +67,10 @@ cv::Mat CopyNonZero(const cv::Mat &source1, const cv::Mat &source2); // merge tw
 cv::Mat CopyNonZeroAlpha(const cv::Mat &source, const cv::Mat &dest); // merge two images with alpha with zero as transparent value - first over the second
 
 //// Alpha channel
-cv::Mat AddAlphaToImage(const cv::Mat &source); // add alpha channel to image
+cv::Mat AddAlphaToImage(const cv::Mat &source); // add alpha channel to image : transparency=black
+
+//// Save PNG
+void SavePNG(const std::string &filename, const cv::Mat &source, const bool &transparency); // save PNG with or without transparency
 
 //// Contours
 

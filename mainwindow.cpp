@@ -19,6 +19,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QScrollBar>
+#include <QWhatsThis>
 
 #include <fstream>
 
@@ -170,6 +171,11 @@ void MainWindow::InitializeValues() // Global variables and GUI elements init
     }*/
     /*for (int n = 0; n < nb_color_sectors; n++)
         AnalyzeCIELabCurveImage(100, "LAB-palette-" + color_sectors[n].name + "-nogap");*/
+}
+
+void MainWindow::on_button_whats_this_clicked() // What's this function
+{
+    QWhatsThis::enterWhatsThisMode();
 }
 
 void MainWindow::on_button_quit_clicked() // quit GUI
@@ -1071,7 +1077,7 @@ void MainWindow::ChangeBaseDir(QString filename) // set base dir and file
 void MainWindow::on_button_load_image_clicked() // load image to analyze
 {
     QString filename = QFileDialog::getOpenFileName(this, "Load image...", QString::fromStdString(basedir),
-                                                    "Images (*.jpg *.JPG *.jpeg *.JPEG *.jp2 *.JP2 *.png *.PNG *.tif *.TIF *.tiff *.TIFF *.bmp *.BMP)"); // image file name
+                                                    tr("Images (*.jpg *.jpeg *.jp2 *.png *.tif *.tiff)")); // image file name
 
     if (filename.isNull() || filename.isEmpty()) // cancel ?
         return;
@@ -1145,7 +1151,7 @@ void MainWindow::on_button_save_graph_clicked() // save graph image only
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this, "Save image file", QString::fromStdString(basedir + basefile + "-graph.png"), "PNG (*.png *.PNG)"); // image filename
+    QString filename = QFileDialog::getSaveFileName(this, "Save image file", QString::fromStdString(basedir + basefile + "-graph.png"), tr("PNG (*.png)")); // image filename
     if (filename.isNull() || filename.isEmpty()) // cancel ?
         return;
 
@@ -1159,7 +1165,7 @@ void MainWindow::on_button_save_quantized_clicked() // save quantized image only
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this, "Save image file", QString::fromStdString(basedir + basefile + "-quantized.png"), "PNG (*.png *.PNG)"); // image filename
+    QString filename = QFileDialog::getSaveFileName(this, "Save image file", QString::fromStdString(basedir + basefile + "-quantized.png"), tr("PNG (*.png)")); // image filename
     if (filename.isNull() || filename.isEmpty()) // cancel ?
         return;
 
@@ -1173,7 +1179,7 @@ void MainWindow::on_button_save_wheel_clicked() // save wheel image only
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this, "Save image file", QString::fromStdString(basedir + basefile + "-wheel.png"), "PNG (*.png *.PNG)"); // image filename
+    QString filename = QFileDialog::getSaveFileName(this, "Save image file", QString::fromStdString(basedir + basefile + "-wheel.png"), tr("PNG (*.png)")); // image filename
     if (filename.isNull() || filename.isEmpty()) // cancel ?
         return;
 
@@ -1187,7 +1193,7 @@ void MainWindow::on_button_save_palette_clicked() // save palette image only
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this, "Save image file", QString::fromStdString(basedir + basefile + "-palette.png"), "PNG (*.png *.PNG)"); // image filename
+    QString filename = QFileDialog::getSaveFileName(this, "Save image file", QString::fromStdString(basedir + basefile + "-palette.png"), tr("PNG (*.png)")); // image filename
     if (filename.isNull() || filename.isEmpty()) // cancel ?
         return;
 
@@ -1201,7 +1207,7 @@ void MainWindow::on_button_save_clicked() // save all results
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this, "Save image file", QString::fromStdString(basedir + basefile + ".png"), "PNG (*.png *.PNG)"); // image filename
+    QString filename = QFileDialog::getSaveFileName(this, "Save image file", QString::fromStdString(basedir + basefile + ".png"), tr("PNG (*.png)")); // image filename
     if (filename.isNull() || filename.isEmpty()) // cancel ?
         return;
 

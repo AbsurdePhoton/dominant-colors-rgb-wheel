@@ -3,7 +3,7 @@
  * OpenCV image tools library
  * Author: AbsurdePhoton
  *
- * v2.2 - 2020/02/06
+ * v2.3 - 2020/03/01
  *
  * Convert mat images to QPixmap or QImage and vice-versa
  * Brightness, Contrast, Gamma, Equalize, Color Balance
@@ -360,19 +360,39 @@ Mat CopyNonZeroAlpha(const Mat &source, const Mat &dest) // merge two images wit
 //// Alpha channel
 ///////////////////////////////////////////////////////////
 
-Mat AddAlphaToImage(const Mat &source) // add alpha channel to image
+Mat AddAlphaToImage(const Mat &source) // add alpha channel to image : transparency=black
 {
   std::vector<cv::Mat> matChannels;
   cv::split(source, matChannels); // split image in separate channels
 
   // create alpha channel
-  cv::Mat alpha = matChannels.at(0) + matChannels.at(1) + matChannels.at(2); // compute alpha channel
-  matChannels.push_back(alpha); // add it to the channels stack
+  cv::Mat alpha;
+  cv::cvtColor(source, alpha, COLOR_BGR2GRAY); // image to gray
+  cv::Mat mask = 255 - (alpha == 0); // compute mask
+  alpha.setTo(255, mask); // alpha to max where pixels are
+  matChannels.push_back(alpha); // add alpha channel to channels stack
 
   Mat result;
   cv::merge(matChannels, result); // merge back channels
 
   return result;
+}
+
+///////////////////////////////////////////////////////////
+//// Save PNG with or without transparency
+///////////////////////////////////////////////////////////
+
+void SavePNG(const std::string &filename, const Mat &source, const bool &transparency) // save PNG with or without transparency
+{
+    if (!transparency) {
+        imwrite(filename, source); // save to PNG image without alpha
+    }
+    else {
+        cv::Mat alpha;
+        source.copyTo(alpha);
+        alpha = AddAlphaToImage(alpha);
+        imwrite(filename, alpha); // save to PNG image with alpha
+    }
 }
 
 ///////////////////////////////////////////////////////////

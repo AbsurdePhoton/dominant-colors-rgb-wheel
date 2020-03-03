@@ -47,6 +47,7 @@ private slots:
 
     //// GUI
     void on_button_quit_clicked(); // quit GUI
+    void on_button_whats_this_clicked(); // What's this function
     void on_button_zoom_image_clicked(); // zoom on/off
     void on_button_load_image_clicked(); // load image to analyze
     void on_button_compute_clicked(); // compute dominant colors

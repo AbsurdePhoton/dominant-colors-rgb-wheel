@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1920</width>
-    <height>1080</height>
+    <width>1916</width>
+    <height>1076</height>
    </rect>
   </property>
   <property name="contextMenuPolicy">
@@ -31,7 +31,7 @@
     <property name="geometry">
      <rect>
       <x>9</x>
-      <y>230</y>
+      <y>200</y>
       <width>101</width>
       <height>61</height>
      </rect>
@@ -48,6 +48,9 @@
      <enum>Qt::NoFocus</enum>
     </property>
     <property name="toolTip">
+     <string/>
+    </property>
+    <property name="whatsThis">
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Load the image to quantize and analyze&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="styleSheet">
@@ -109,6 +112,9 @@ image</string>
      <enum>Qt::NoFocus</enum>
     </property>
     <property name="toolTip">
+     <string/>
+    </property>
+    <property name="whatsThis">
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Quit this interesting piece of software&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="styleSheet">
@@ -160,6 +166,9 @@ QToolTip {
      </font>
     </property>
     <property name="toolTip">
+     <string/>
+    </property>
+    <property name="whatsThis">
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Current image filename&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="frameShape">
@@ -211,6 +220,9 @@ QToolTip {
     <property name="mouseTracking">
      <bool>true</bool>
     </property>
+    <property name="whatsThis">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The Color Wheel is where the dominant colors of the image are displayed.&lt;/p&gt;&lt;p&gt;It shows the dominant colors distribution, so it can help you analyse how a photo or painting colors are distributed.&lt;/p&gt;&lt;p&gt;You can easily identify color combinations : complementary colors are opposite on the wheel, analogous colors are near each other, triadic colors are located on an equilateral triangle which center is the wheel center, etc.&lt;/p&gt;&lt;p&gt;- the color wheel is based on the Hue of HSL color space, and the Lightness and Saturation (in fact Chroma) of CIELAB color space. Saturation and Lightness of HSL is based on the RGB color space and is not as reliable as CIELAB (human-perceived values).&lt;/p&gt;&lt;p&gt;- Hue is the angle in degrees (clockwise, where red = 0)&lt;/p&gt;&lt;p&gt;- Saturation is not represented on an axis here&lt;/p&gt;&lt;p&gt;- darker colors are near the center, lighter colors are near the inner circle. White, gray and black colors (R = G = B) are aligned on the red axis because they have a H value of zero&lt;/p&gt;&lt;p&gt;- the main 12 colors can be found on the outer circle. Primary colors (Red, Green, Blue) are in the biggest circles. Secondary (Cyan, Magenta, Yellow) and Tertiary colors are also there&lt;/p&gt;&lt;p&gt;- the circle size for a dominant color is the percentage of this color in the whole image. Adjust all circle sizes with the slider or use the mouse wheel&lt;/p&gt;&lt;p&gt;- you can left-click with your mouse on any color in the wheel (or palette or quantized image), to get its RGB values (in decimal and hexadecimal) and percentage of use in the image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>
     </property>
@@ -246,6 +258,9 @@ QToolTip {
      </font>
     </property>
     <property name="toolTip">
+     <string/>
+    </property>
+    <property name="whatsThis">
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reduce the image size to 512 pixels to speed up computing.&lt;/p&gt;&lt;p&gt;It doesn't affect much the final result, but consider unchecking it if you want precision!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="text">
@@ -272,6 +287,9 @@ size</string>
      </font>
     </property>
     <property name="toolTip">
+     <string/>
+    </property>
+    <property name="whatsThis">
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apply a 3x3 gaussian blur to the image before proceeding.&lt;/p&gt;&lt;p&gt;It helps with noisy images&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="text">
@@ -303,6 +321,9 @@ blur</string>
      <enum>Qt::NoFocus</enum>
     </property>
     <property name="toolTip">
+     <string/>
+    </property>
+    <property name="whatsThis">
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Save the computed results : the 3D view with dominant colors, quantized image, palette and CSV file of the palette, along with popular palette types for Photoshop, Corel Draw and Paintshop Pro&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="styleSheet">
@@ -365,6 +386,9 @@ QToolTip {
       </rect>
      </property>
      <property name="toolTip">
+      <string/>
+     </property>
+     <property name="whatsThis">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;AbsurdePhoton, amateur photographer.&lt;/p&gt;&lt;p&gt;www.absurdephoton.fr&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
@@ -392,6 +416,9 @@ QToolTip {
       </font>
      </property>
      <property name="toolTip">
+      <string/>
+     </property>
+     <property name="whatsThis">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;* v2.0: added my own dominant colors algorithm, based on HSL hues and Chroma+Lightness from CIELab - many improvements for exact calculus - greatly improved &amp;quot;Regroup colors&amp;quot; algorithm - now each color scheme is an independant layer above the Wheel image so you can show and hide it with the corresponding button - improved color distribution graph based on 24 hues - added independant computed images save buttons - source and Quantized images now zoomable - show Palette with several sort algorithms - select number of colors to show in Palette image even after having computed it - picked color is now identified in Palette and Quantized images, and on the Wheel too&lt;/p&gt;&lt;p&gt;* v1.0: now able to analyze the image and determine which color schemes were used to build it (analogous or complementary colors, warm/cool colors, etc). Filters for greys and percentage of use. Better organized GUI. Save popular palette formats for Photoshop, Paintshop Pro and Corel Draw. Mean-shift algorithm&lt;/p&gt;&lt;p&gt;* v0.1: found a better way to represent colors : using conversion from RGB to HSL instead of HSV, to have blacker colors near the center of the wheel and lighter at the edge of the inner circle - also added a circle size factor&lt;/p&gt;&lt;p&gt;* v0: launch&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="frameShape">
@@ -434,6 +461,9 @@ QToolTip {
      <property name="cursor">
       <cursorShape>ArrowCursor</cursorShape>
      </property>
+     <property name="whatsThis">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Information about the current software&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
@@ -467,6 +497,9 @@ QToolTip {
      </rect>
     </property>
     <property name="toolTip">
+     <string/>
+    </property>
+    <property name="whatsThis">
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use this slider to adjust all color circles size, which represent the percentage of use of a color in the quantized image.&lt;/p&gt;&lt;p&gt;You can also use the mouse wheel&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="minimum">
@@ -493,6 +526,9 @@ QToolTip {
       <width>461</width>
       <height>271</height>
      </rect>
+    </property>
+    <property name="whatsThis">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the Quantize panel.&lt;/p&gt;&lt;p&gt;On the left are the common options, on the right you can choose the quantization method&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(255,240,240);</string>
@@ -521,6 +557,9 @@ QToolTip {
       </font>
      </property>
      <property name="toolTip">
+      <string/>
+     </property>
+     <property name="whatsThis">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;K-means is a well-known method to approximate data.&lt;/p&gt;&lt;p&gt;It is slow, though, and a bit inconsistent due to the randomness introduced at the beginning of the implementation.&lt;/p&gt;&lt;p&gt;Computation time will dramaticaly increase with the asked number of colors&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
@@ -548,6 +587,9 @@ QToolTip {
       <enum>Qt::NoFocus</enum>
      </property>
      <property name="toolTip">
+      <string/>
+     </property>
+     <property name="whatsThis">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Way faster than K-means, it always produces the same results&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
@@ -584,7 +626,10 @@ QToolTip {
       <enum>Qt::NoFocus</enum>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After loading an image and adjusting parameters, compute the results.&lt;/p&gt;&lt;p&gt;The color wheel is where the dominant colors of the image are displayed.&lt;/p&gt;&lt;p&gt;It shows the dominant colors distribution, so it can help you analyse how a photo or painting colors are distributed.&lt;/p&gt;&lt;p&gt;You can easily identify color combinations : complementary colors are opposite on the wheel, analogous colors are near each other, triadic colors are located on an equilateral triangle which center is the wheel center, etc.&lt;/p&gt;&lt;p&gt;- the color wheel is based on the Hue of HSL color space, and the Lightness and Saturation (in fact Chroma) of CIELAB color space. Saturation and Lightness of HSL is based on the RGB color space and is not as reliable as CIELAB (human-perceived values).&lt;/p&gt;&lt;p&gt;- Hue is the angle in degrees (clockwise, where red = 0)&lt;/p&gt;&lt;p&gt;- Saturation is not represented on an axis here&lt;/p&gt;&lt;p&gt;- darker colors are near the center, lighter colors are near the inner circle. White, gray and black colors (R = G = B) are aligned on the red axis because they have a H value of zero&lt;/p&gt;&lt;p&gt;- the main 12 colors can be found on the outer circle. Primary colors (Red, Green, Blue) are in the biggest circles. Secondary (Cyan, Magenta, Yellow) and Tertiary colors are also there&lt;/p&gt;&lt;p&gt;- the circle size for a dominant color is the percentage of this color in the whole image. Adjust all circle sizes with the slider or use the mouse wheel&lt;/p&gt;&lt;p&gt;- you can left-click with your mouse on any color in the wheel (or palette or quantized image), to get its RGB values (in decimal and hexadecimal) and percentage of use in the image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string/>
+     </property>
+     <property name="whatsThis">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After loading an image and adjusting parameters, compute the results&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="styleSheet">
       <string notr="true">QPushButton {
@@ -651,6 +696,9 @@ QToolTip {
        </font>
       </property>
       <property name="toolTip">
+       <string/>
+      </property>
+      <property name="whatsThis">
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Filter the image to obtain only colors.&lt;/p&gt;&lt;p&gt;Filtering &amp;quot;grays&amp;quot; means the source image will not contain blacks, whites and grays before quantization. Pure white and black &amp;quot;colors&amp;quot; are after all peculiar grays...&lt;/p&gt;&lt;p&gt;The numbers chosen are the distances (in CIELAB space) under which a RGB color will be considered a &amp;quot;gray&amp;quot; value:&lt;br/&gt;- Blacks: measured from pure black RGB(0,0,0)&lt;br/&gt;- Whites: measured from pure white RGB(0,0,0)&lt;br/&gt;- Grays: distance is measured from the &amp;quot;gray axis&amp;quot; (same Hue but S=0 and L=50 in HSL color space)&lt;/p&gt;&lt;p&gt;All grays are replaced by the pure black color RGB(0,0,0) in the quantized image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
@@ -668,6 +716,9 @@ QToolTip {
         <width>96</width>
         <height>23</height>
        </rect>
+      </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When checked, this algorithm will try to merge near colors in the palette, by distance (=distance in CIELAB space)&lt;/p&gt;&lt;p&gt;You will likely get a reduced palette, and much less colors than asked&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="minimum">
        <number>0</number>
@@ -703,6 +754,9 @@ QToolTip {
        </font>
       </property>
       <property name="toolTip">
+       <string/>
+      </property>
+      <property name="whatsThis">
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Don't keep non-significant palette values by x% of total pixels in the image.&lt;/p&gt;&lt;p&gt;If the asked number of colors is set high, chances are you will get tiny color elements at the end of the palette&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
@@ -727,6 +781,9 @@ QToolTip {
         <italic>false</italic>
        </font>
       </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can filter white / very bright colors with this slider&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string>&lt;</string>
       </property>
@@ -742,6 +799,9 @@ QToolTip {
         <width>96</width>
         <height>23</height>
        </rect>
+      </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Don't keep non-significant palette values by x% of total pixels in the image.&lt;/p&gt;&lt;p&gt;If the asked number of colors is set high, chances are you will get tiny color elements at the end of the palette&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="minimum">
        <number>1</number>
@@ -768,6 +828,9 @@ QToolTip {
         <height>17</height>
        </rect>
       </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can filter grays with this slider&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="styleSheet">
        <string notr="true">background-color:gray;</string>
       </property>
@@ -789,6 +852,9 @@ QToolTip {
         <width>96</width>
         <height>23</height>
        </rect>
+      </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can filter white / very bright colors with this slider&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="minimum">
        <number>0</number>
@@ -823,6 +889,9 @@ QToolTip {
        </font>
       </property>
       <property name="toolTip">
+       <string/>
+      </property>
+      <property name="whatsThis">
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When checked, this algorithm will try to merge near colors in the palette, by distance (=distance in CIELAB space)&lt;/p&gt;&lt;p&gt;You will likely get a reduced palette, and much less colors than asked&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
@@ -847,6 +916,9 @@ QToolTip {
         <italic>false</italic>
        </font>
       </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When checked, this algorithm will try to merge near colors in the palette, by distance (=distance in CIELAB space)&lt;/p&gt;&lt;p&gt;You will likely get a reduced palette, and much less colors than asked&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string>Distance   &lt;</string>
       </property>
@@ -869,6 +941,9 @@ QToolTip {
         <italic>false</italic>
        </font>
       </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can filter dark colors with this slider&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string>0</string>
       </property>
@@ -890,6 +965,9 @@ QToolTip {
         <pointsize>9</pointsize>
         <italic>false</italic>
        </font>
+      </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can filter white / very bright colors with this slider&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string>0</string>
@@ -929,6 +1007,9 @@ QToolTip {
         <italic>false</italic>
        </font>
       </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can filter dark colors with this slider&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string>&lt;</string>
       </property>
@@ -944,6 +1025,9 @@ QToolTip {
         <width>96</width>
         <height>23</height>
        </rect>
+      </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can filter grays with this slider&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="minimum">
        <number>0</number>
@@ -976,6 +1060,9 @@ QToolTip {
         <italic>false</italic>
        </font>
       </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can filter grays with this slider&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string>0</string>
       </property>
@@ -991,6 +1078,9 @@ QToolTip {
         <width>96</width>
         <height>23</height>
        </rect>
+      </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can filter dark colors with this slider&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="minimum">
        <number>0</number>
@@ -1016,6 +1106,9 @@ QToolTip {
         <width>16</width>
         <height>17</height>
        </rect>
+      </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can filter white / very bright colors with this slider&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="styleSheet">
        <string notr="true">background-color:white;</string>
@@ -1067,6 +1160,9 @@ QToolTip {
         <italic>false</italic>
        </font>
       </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can filter grays with this slider&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string>&lt;</string>
       </property>
@@ -1082,6 +1178,9 @@ QToolTip {
         <width>16</width>
         <height>17</height>
        </rect>
+      </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can filter dark colors with this slider&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="styleSheet">
        <string notr="true">background-color:black;</string>
@@ -1312,6 +1411,9 @@ QToolTip {
       <property name="toolTip">
        <string/>
       </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of wanted dominant colors in the palette&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="styleSheet">
        <string notr="true">QSpinBox {
     color: black;
@@ -1345,6 +1447,9 @@ QToolTip {
        </rect>
       </property>
       <property name="toolTip">
+       <string/>
+      </property>
+      <property name="whatsThis">
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of wanted dominant colors in the palette&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
@@ -1367,6 +1472,9 @@ QToolTip {
        </rect>
       </property>
       <property name="toolTip">
+       <string/>
+      </property>
+      <property name="whatsThis">
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset all filters to default values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="styleSheet">
@@ -1445,6 +1553,9 @@ QToolTip {
       </font>
      </property>
      <property name="toolTip">
+      <string/>
+     </property>
+     <property name="whatsThis">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mean-shift is NOT a quantization algorithm, but it produces interesting results.&lt;/p&gt;&lt;p&gt;When you choose this one, chances are you will get a higher number of colors in the &amp;quot;quantized&amp;quot; image. Because Mean-shift tries to &amp;quot;grow&amp;quot; significant colors, it simplifies the whole image. The number of colors diminishes of course, but intermediate values are unavoidable.&lt;/p&gt;&lt;p&gt;The final palette will contain the x most used colors in the quantized image.&lt;/p&gt;&lt;p&gt;The algorithm uses two distance values:&lt;br/&gt;- Spatial (x,y) coordinates&lt;br/&gt;- Color (CIELAB distance)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
@@ -1460,6 +1571,9 @@ QToolTip {
        <height>56</height>
       </rect>
      </property>
+     <property name="whatsThis">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mean-shift is NOT a quantization algorithm, but it produces interesting results.&lt;/p&gt;&lt;p&gt;When you choose this one, chances are you will get a higher number of colors in the &amp;quot;quantized&amp;quot; image. Because Mean-shift tries to &amp;quot;grow&amp;quot; significant colors, it simplifies the whole image. The number of colors diminishes of course, but intermediate values are unavoidable.&lt;/p&gt;&lt;p&gt;The final palette will contain the x most used colors in the quantized image.&lt;/p&gt;&lt;p&gt;The algorithm uses two distance values:&lt;br/&gt;- Spatial (x,y) coordinates&lt;br/&gt;- Color (CIELAB distance)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
@@ -1474,6 +1588,9 @@ QToolTip {
         <width>96</width>
         <height>23</height>
        </rect>
+      </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adjust spatial distance.&lt;/p&gt;&lt;p&gt;It is the distance between pixels in the image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="minimum">
        <number>4</number>
@@ -1505,6 +1622,9 @@ QToolTip {
         <pointsize>9</pointsize>
        </font>
       </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adjust color distance.&lt;/p&gt;&lt;p&gt;It is the distance between two colors in CIEL*a*b* space&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string>0</string>
       </property>
@@ -1525,6 +1645,9 @@ QToolTip {
        <font>
         <pointsize>9</pointsize>
        </font>
+      </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adjust spatial distance.&lt;/p&gt;&lt;p&gt;It is the distance between pixels in the image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string>spatial  &lt;</string>
@@ -1547,6 +1670,9 @@ QToolTip {
         <pointsize>9</pointsize>
        </font>
       </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adjust color distance.&lt;/p&gt;&lt;p&gt;It is the distance between two colors in CIEL*a*b* space&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string>color  &lt;</string>
       </property>
@@ -1568,6 +1694,9 @@ QToolTip {
         <pointsize>9</pointsize>
        </font>
       </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adjust spatial distance.&lt;/p&gt;&lt;p&gt;It is the distance between pixels in the image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string>0</string>
       </property>
@@ -1583,6 +1712,9 @@ QToolTip {
         <width>96</width>
         <height>23</height>
        </rect>
+      </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adjust color distance.&lt;/p&gt;&lt;p&gt;It is the distance between two colors in CIEL*a*b* space&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="minimum">
        <number>6</number>
@@ -1622,7 +1754,10 @@ QToolTip {
       </font>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sector-mean is an original algorithm by AbsurdePhoton, specially developped for the present software.&lt;/p&gt;&lt;p&gt;The idea is simple: split the color wheel (based on Hue from HSL color space) in several &amp;quot;sectors&amp;quot;. All the colors of the image belong to one sector (or hue).&lt;/p&gt;&lt;p&gt;For each sector, divide it in &amp;quot;levels&amp;quot; of Lightness and Chroma (from CIEL*a*b*). Each color of each sector belongs to one level.&lt;/p&gt;&lt;p&gt;For each sector and level, compute the mean of the colors in it. Replace these colors by their mean and you have a quantized image.&lt;/p&gt;&lt;p&gt;The numbers of colors in the obtained Palette is equal or inferior to the real number of colors in the Quantized image.&lt;/p&gt;&lt;p&gt;You can of course Regroup the results for less colors in the Palette.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string/>
+     </property>
+     <property name="whatsThis">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sectored-means is an original algorithm by AbsurdePhoton, specially developped for the present software.&lt;/p&gt;&lt;p&gt;The idea is simple: split the color wheel (based on Hue from HSL color space) in several &amp;quot;sectors&amp;quot;. All the colors of the image belong to one sector (or hue).&lt;/p&gt;&lt;p&gt;For each sector, divide it in &amp;quot;levels&amp;quot; of Lightness and Chroma (from CIEL*a*b*). Each color of each sector belongs to one level.&lt;/p&gt;&lt;p&gt;For each sector and level, compute the mean of the colors in it. Replace these colors by their mean and you have a quantized image.&lt;/p&gt;&lt;p&gt;The numbers of colors in the obtained Palette is equal or inferior to the real number of colors in the Quantized image.&lt;/p&gt;&lt;p&gt;You can of course Regroup the results for less colors in the Palette.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
       <string>Sectored-mea&amp;ns</string>
@@ -1639,6 +1774,9 @@ QToolTip {
        <width>201</width>
        <height>43</height>
       </rect>
+     </property>
+     <property name="whatsThis">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sectored-means is an original algorithm by AbsurdePhoton, specially developped for the present software.&lt;/p&gt;&lt;p&gt;The idea is simple: split the color wheel (based on Hue from HSL color space) in several &amp;quot;sectors&amp;quot;. All the colors of the image belong to one sector (or hue).&lt;/p&gt;&lt;p&gt;For each sector, divide it in &amp;quot;levels&amp;quot; of Lightness and Chroma (from CIEL*a*b*). Each color of each sector belongs to one level.&lt;/p&gt;&lt;p&gt;For each sector and level, compute the mean of the colors in it. Replace these colors by their mean and you have a quantized image.&lt;/p&gt;&lt;p&gt;The numbers of colors in the obtained Palette is equal or inferior to the real number of colors in the Quantized image.&lt;/p&gt;&lt;p&gt;You can of course Regroup the results for less colors in the Palette.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -1660,6 +1798,9 @@ QToolTip {
         <pointsize>9</pointsize>
        </font>
       </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When checked, don't use Lightness and Chroma categories, but split their scale by N values.&lt;/p&gt;&lt;p&gt;It can sometimes be better than the automatic behavior&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string>0</string>
       </property>
@@ -1675,6 +1816,9 @@ QToolTip {
         <width>96</width>
         <height>23</height>
        </rect>
+      </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When checked, don't use Lightness and Chroma categories, but split their scale into N values.&lt;/p&gt;&lt;p&gt;It can sometimes be better than the automatic behavior&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="minimum">
        <number>1</number>
@@ -1712,7 +1856,10 @@ QToolTip {
        </font>
       </property>
       <property name="toolTip">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When checked, don't use Lightness and Chroma categories, but divide their scale by N values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string/>
+      </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When checked, don't use Lightness and Chroma categories, but split their scale into N values.&lt;/p&gt;&lt;p&gt;It can sometimes be better than the automatic behavior&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string>Levels</string>
@@ -1740,6 +1887,9 @@ QToolTip {
       <height>271</height>
      </rect>
     </property>
+    <property name="whatsThis">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the Palette panel.&lt;/p&gt;&lt;p&gt;Here you can see information about the image colors&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(132,132,132);</string>
     </property>
@@ -1763,6 +1913,9 @@ QToolTip {
      </property>
      <property name="toolTip">
       <string/>
+     </property>
+     <property name="whatsThis">
+      <string>Green (RGB) value of current picked color</string>
      </property>
      <property name="styleSheet">
       <string notr="true">QLabel {
@@ -1805,7 +1958,10 @@ QToolTip {
       </rect>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pick a color to show it here.&lt;/p&gt;&lt;p&gt;RGB values are displayed in decimal and hexadecimal&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string/>
+     </property>
+     <property name="whatsThis">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pick a color to show it here.&lt;/p&gt;&lt;p&gt;Its percentage of use in the Quantized image is displayed.&lt;/p&gt;&lt;p&gt;Its RGB values are displayed in decimal and hexadecimal, and the nearest color name is shown too&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
@@ -1834,6 +1990,9 @@ QToolTip {
      </property>
      <property name="toolTip">
       <string/>
+     </property>
+     <property name="whatsThis">
+      <string>Red (RGB) value of current picked colorGreen (RGB) value of current picked colorGreen (RGB) value of current picked colorGreen (RGB) value of current picked color</string>
      </property>
      <property name="styleSheet">
       <string notr="true">QLabel {
@@ -1888,6 +2047,9 @@ QToolTip {
       <bool>true</bool>
      </property>
      <property name="toolTip">
+      <string/>
+     </property>
+     <property name="whatsThis">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Resulting palette after using the Quantize button.&lt;/p&gt;&lt;p&gt;You can left-click with your mouse on any color in the palette, to get its RGB values (in decimal and hexadecimal) and percentage of use in the image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="frameShape">
@@ -1921,7 +2083,10 @@ QToolTip {
       </font>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pick a color to show its name here, from a 9000+ database.&lt;/p&gt;&lt;p&gt;When the exact value is not found, the nearest color name (CIELAB distance) is displayed&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string/>
+     </property>
+     <property name="whatsThis">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pick a color to show its name here, from a 9000+ values database.&lt;/p&gt;&lt;p&gt;When the exact value is not found, the nearest color name (CIELAB distance) is displayed&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="styleSheet">
       <string notr="true">color: black;
@@ -1954,6 +2119,9 @@ background-color: rgb(255,255,255);</string>
      </property>
      <property name="toolTip">
       <string/>
+     </property>
+     <property name="whatsThis">
+      <string>Blue (RGB) value of current picked color</string>
      </property>
      <property name="styleSheet">
       <string notr="true">QLabel {
@@ -1998,6 +2166,9 @@ QToolTip {
      <property name="toolTip">
       <string/>
      </property>
+     <property name="whatsThis">
+      <string>Hexadecimal (RGB) value of current picked color</string>
+     </property>
      <property name="styleSheet">
       <string notr="true">color: black;
 background-color: rgb(255,255,255);</string>
@@ -2028,7 +2199,10 @@ background-color: rgb(255,255,255);</string>
       </rect>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pick a color to show it here.&lt;/p&gt;&lt;p&gt;RGB values are displayed in decimal and hexadecimal&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string/>
+     </property>
+     <property name="whatsThis">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pick a color to show it here.&lt;/p&gt;&lt;p&gt;Its percentage of use in the Quantized image is displayed.&lt;/p&gt;&lt;p&gt;Its RGB values are displayed in decimal and hexadecimal, and the nearest color name is shown too&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -2068,6 +2242,9 @@ Color</string>
       <enum>Qt::NoFocus</enum>
      </property>
      <property name="toolTip">
+      <string/>
+     </property>
+     <property name="whatsThis">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Save Palette image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="styleSheet">
@@ -2124,6 +2301,9 @@ QToolTip {
       <enum>Qt::NoFocus</enum>
      </property>
      <property name="toolTip">
+      <string/>
+     </property>
+     <property name="whatsThis">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Increase palette number of colors, if available one more color is added&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="styleSheet">
@@ -2180,6 +2360,9 @@ QToolTip {
       <enum>Qt::NoFocus</enum>
      </property>
      <property name="toolTip">
+      <string/>
+     </property>
+     <property name="whatsThis">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reduce palette number of colors, the color on the right is hidden&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="styleSheet">
@@ -2225,6 +2408,9 @@ QToolTip {
       </rect>
      </property>
      <property name="toolTip">
+      <string/>
+     </property>
+     <property name="whatsThis">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can sort the colors using the computed color values in several color spaces&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="styleSheet">
@@ -2283,6 +2469,9 @@ QToolTip {
       </font>
      </property>
      <property name="toolTip">
+      <string/>
+     </property>
+     <property name="whatsThis">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, colors are scaled using their percentage of use&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
@@ -2301,6 +2490,9 @@ QToolTip {
       <width>651</width>
       <height>401</height>
      </rect>
+    </property>
+    <property name="whatsThis">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the analyze panel.&lt;/p&gt;&lt;p&gt;After quantization, you can further analyze your image to get extra information about its colors&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(240,255,240);</string>
@@ -2338,6 +2530,9 @@ QToolTip {
       <enum>Qt::NoFocus</enum>
      </property>
      <property name="toolTip">
+      <string/>
+     </property>
+     <property name="whatsThis">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Not seen elsewhere to my knowledge, the Analyze function can tell many things about a photo or painting.&lt;/p&gt;&lt;p&gt;After loading an image and computing the results, you can analyze how the image was conceived with the help of colored lines/shapes connecting the color dots.&lt;/p&gt;&lt;p&gt;Use this button to show on the wheel wether the colors are:&lt;/p&gt;&lt;p&gt;- complementary (red lines): opposite, high contrast, vibrant look&lt;/p&gt;&lt;p&gt;- split-complementary (cyan lines): one color opposite to two others, adjacent to the complement, same effect as complementary but a bit attenuated&lt;/p&gt;&lt;p&gt;- analogous (green lines): colors next to each other. Often found in nature, harmonious and pleasing to the eye&lt;/p&gt;&lt;p&gt;- triadic (blue lines): evenly spaced around the color wheel, harmonies tend to be quite vibrant&lt;/p&gt;&lt;p&gt;- tetradic (rectangle, violet lines): two complementary pairs in mirror, many possibilities in variation&lt;/p&gt;&lt;p&gt;- square (orange lines): similar to tetradic, but with all four colors spaced evenly around the color circle&lt;/p&gt;&lt;p&gt;You will also get an estimation of cold/warm colors, and the dominant type of gray values: whites, blacks or neutral. A &amp;quot;Perceived brightness&amp;quot; indicator is also available&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="styleSheet">
@@ -2501,6 +2696,9 @@ QToolTip {
        </disabled>
       </palette>
      </property>
+     <property name="whatsThis">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only palette colors more than x% of the total will be taken in account when using the ANALYZE button.&lt;/p&gt;&lt;p&gt;This includes the color schemes&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="styleSheet">
       <string notr="true">background-color: rgb(255,255,255);</string>
      </property>
@@ -2538,6 +2736,9 @@ QToolTip {
       </font>
      </property>
      <property name="toolTip">
+      <string/>
+     </property>
+     <property name="whatsThis">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only palette colors more than x% of the total will be taken in account when using the ANALYZE button.&lt;/p&gt;&lt;p&gt;This includes the color schemes&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
@@ -2557,6 +2758,9 @@ QToolTip {
       </rect>
      </property>
      <property name="toolTip">
+      <string/>
+     </property>
+     <property name="whatsThis">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Draw the results on the borders of the wheel instead of using the color dots themselves&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
@@ -2576,6 +2780,9 @@ QToolTip {
       </rect>
      </property>
      <property name="toolTip">
+      <string/>
+     </property>
+     <property name="whatsThis">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Approximate palette hues to the 12 main colors of the wheel (Primary, Secondary and Tertiary).&lt;/p&gt;&lt;p&gt;It can help getting more visually pertinent results&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
@@ -2814,7 +3021,7 @@ QToolTip {
        <enum>Qt::NoFocus</enum>
       </property>
       <property name="whatsThis">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is a color scheme, checked when found in the image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Analogous (green lines): colors next to each other. Often found in nature, harmonious and pleasing to the eye&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="styleSheet">
        <string notr="true">QPushButton {
@@ -2873,6 +3080,9 @@ QToolTip {
         <pointsize>11</pointsize>
        </font>
       </property>
+      <property name="whatsThis">
+       <string>Percentage of white / very bright colors</string>
+      </property>
       <property name="styleSheet">
        <string notr="true">QLabel {
 	color:rgb(0,0,0);
@@ -2918,6 +3128,9 @@ QToolTip {
         <pointsize>11</pointsize>
        </font>
       </property>
+      <property name="whatsThis">
+       <string>Percentage of gray / neutral colors</string>
+      </property>
       <property name="styleSheet">
        <string notr="true">QLabel {
 	color:rgb(0,0,0);
@@ -2962,6 +3175,9 @@ QToolTip {
        <font>
         <pointsize>11</pointsize>
        </font>
+      </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using the ANALYZE button, the image is also scanned for warm and cool colors, showing the most siginificant percentage.&lt;/p&gt;&lt;p&gt;It is based on the Hue values of HSL color space.&lt;/p&gt;&lt;p&gt;Whites and greys are treated as colors this time.&lt;/p&gt;&lt;p&gt;- warm colors (330 to 30° or &amp;quot;reds&amp;quot;) give a joyous mood to an image&lt;br/&gt;- cool colors (150 to 270° or &amp;quot;blues&amp;quot;) tend to give a sad mood, they remind of ice and water. Included here are also dark colors&lt;br/&gt;- neutral-negative (270 to 330° or &amp;quot;pink and violet&amp;quot;) are more or less sad&lt;br/&gt;- neutral-positive (80 to 150° or &amp;quot;greens&amp;quot;) is mostly peaceful&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="styleSheet">
        <string notr="true">QLabel {
@@ -3208,7 +3424,7 @@ QToolTip {
        <enum>Qt::NoFocus</enum>
       </property>
       <property name="whatsThis">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is a color scheme, checked when found in the image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Complementary (red lines): opposite, high contrast, vibrant look&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="styleSheet">
        <string notr="true">QPushButton {
@@ -3269,6 +3485,9 @@ QToolTip {
        <font>
         <pointsize>11</pointsize>
        </font>
+      </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Percentage of dark colors&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="styleSheet">
        <string notr="true">QLabel {
@@ -3515,7 +3734,7 @@ QToolTip {
        <enum>Qt::NoFocus</enum>
       </property>
       <property name="whatsThis">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is a color scheme, checked when found in the image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Square (orange lines): similar to tetradic, but with all four colors spaced evenly around the color circle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="styleSheet">
        <string notr="true">QPushButton {
@@ -3570,6 +3789,9 @@ QToolTip {
        </rect>
       </property>
       <property name="toolTip">
+       <string/>
+      </property>
+      <property name="whatsThis">
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using the ANALYZE button, the image is scanned for &amp;quot;gray&amp;quot; values.&lt;/p&gt;&lt;p&gt;Percentages are based on the whole image.&lt;/p&gt;&lt;p&gt;The same values as &amp;quot;Filter grays&amp;quot; are used, even if the filter is not checked&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="styleSheet">
@@ -3799,7 +4021,7 @@ QToolTip {
        <enum>Qt::NoFocus</enum>
       </property>
       <property name="whatsThis">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is a color scheme, checked when found in the image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Split-complementary (cyan lines): one color opposite to two others, adjacent to the complement, same effect as complementary but a bit attenuated&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="styleSheet">
        <string notr="true">QPushButton {
@@ -4058,7 +4280,7 @@ QToolTip {
        <enum>Qt::NoFocus</enum>
       </property>
       <property name="whatsThis">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is a color scheme, checked when found in the image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Triadic (blue lines): evenly spaced around the color wheel, harmonies tend to be quite vibrant&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="styleSheet">
        <string notr="true">QPushButton {
@@ -4317,7 +4539,7 @@ QToolTip {
        <enum>Qt::NoFocus</enum>
       </property>
       <property name="whatsThis">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is a color scheme, checked when found in the image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tetradic (rectangle, violet lines): two complementary pairs in mirror, many possibilities in variation&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="styleSheet">
        <string notr="true">QPushButton {
@@ -4372,6 +4594,9 @@ QToolTip {
        </rect>
       </property>
       <property name="toolTip">
+       <string/>
+      </property>
+      <property name="whatsThis">
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using the ANALYZE button, the image is also scanned for warm and cool colors, showing the most siginificant percentage.&lt;/p&gt;&lt;p&gt;It is based on the Hue values of HSL color space.&lt;/p&gt;&lt;p&gt;Whites and greys are treated as colors this time.&lt;/p&gt;&lt;p&gt;- warm colors (330 to 30° or &amp;quot;reds&amp;quot;) give a joyous mood to an image&lt;br/&gt;- cool colors (150 to 270° or &amp;quot;blues&amp;quot;) tend to give a sad mood, they remind of ice and water. Included here are also dark colors&lt;br/&gt;- neutral-negative (270 to 330° or &amp;quot;pink and violet&amp;quot;) are more or less sad&lt;br/&gt;- neutral-positive (80 to 150° or &amp;quot;greens&amp;quot;) is mostly peaceful&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="styleSheet">
@@ -4497,6 +4722,9 @@ QToolTip {
         <pointsize>11</pointsize>
        </font>
       </property>
+      <property name="whatsThis">
+       <string>Percentage of colors</string>
+      </property>
       <property name="styleSheet">
        <string notr="true">QLabel {
 	color:rgb(0,0,0);
@@ -4538,6 +4766,9 @@ QToolTip {
        </rect>
       </property>
       <property name="toolTip">
+       <string/>
+      </property>
+      <property name="whatsThis">
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perceived brightness of the whole image.&lt;/p&gt;&lt;p&gt;Not to be confounded with pure brightness, this value is mostly used to tell if an image is dark or bright&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="styleSheet">
@@ -4567,6 +4798,12 @@ QToolTip {
         <pointsize>11</pointsize>
         <italic>false</italic>
        </font>
+      </property>
+      <property name="toolTip">
+       <string/>
+      </property>
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perceived brightness of the whole image.&lt;/p&gt;&lt;p&gt;Not to be confounded with pure brightness, this value is mostly used to tell if an image is dark or bright&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="styleSheet">
        <string notr="true">QLabel {
@@ -4609,6 +4846,9 @@ QToolTip {
        </rect>
       </property>
       <property name="toolTip">
+       <string/>
+      </property>
+      <property name="whatsThis">
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is a graph showing the relative number of pixels in each of Primary, Secondary and Tertiary colors.&lt;/p&gt;&lt;p&gt;Whites, blacks and grays are excluded, using the values of the &amp;quot;filter grays&amp;quot; algorithm, even if it is not checked&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="styleSheet">
@@ -4838,7 +5078,7 @@ QToolTip {
        <enum>Qt::DefaultContextMenu</enum>
       </property>
       <property name="whatsThis">
-       <string/>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Monochromatic: when all colors of the image are confined to a tiny sector on the Wheel (max 40°).&lt;/p&gt;&lt;p&gt;This means that the artist used a very limited palette: different shades of almost the same color, using different values of chroma and/or lightness&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="styleSheet">
        <string notr="true">QPushButton {
@@ -4904,6 +5144,9 @@ QToolTip {
        <enum>Qt::NoFocus</enum>
       </property>
       <property name="toolTip">
+       <string/>
+      </property>
+      <property name="whatsThis">
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Save Graph image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="styleSheet">
@@ -4957,6 +5200,9 @@ QToolTip {
      </rect>
     </property>
     <property name="toolTip">
+     <string/>
+    </property>
+    <property name="whatsThis">
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Elapsed time in seconds:milliseconds when you Quantize or Analyze&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="styleSheet">
@@ -5010,6 +5256,9 @@ QToolTip {
      <enum>Qt::NoFocus</enum>
     </property>
     <property name="toolTip">
+     <string/>
+    </property>
+    <property name="whatsThis">
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Save Color Wheel image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="styleSheet">
@@ -5066,6 +5315,9 @@ QToolTip {
      <enum>Qt::NoFocus</enum>
     </property>
     <property name="toolTip">
+     <string/>
+    </property>
+    <property name="whatsThis">
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Save Quantized image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="styleSheet">
@@ -5158,6 +5410,9 @@ QToolTip {
      <bool>true</bool>
     </property>
     <property name="toolTip">
+     <string/>
+    </property>
+    <property name="whatsThis">
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Resulting quantized image after using the Quantize button, using the new limited palette.&lt;/p&gt;&lt;p&gt;You can left-click with your mouse on any color in the quantized image, to get its RGB values (in decimal and hexadecimal) and percentage of use in the image.&lt;/p&gt;&lt;p&gt;If &amp;quot;filter grays&amp;quot; is used, blacks, whites and grays are represented in black.&lt;/p&gt;&lt;p&gt;If the Mean Shift algorithm is used, the quantized image may contain more colors than asked, so these won't be selectable&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="frameShape">
@@ -5236,6 +5491,9 @@ QToolTip {
      <bool>true</bool>
     </property>
     <property name="toolTip">
+     <string/>
+    </property>
+    <property name="whatsThis">
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the loaded image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="frameShape">
@@ -5275,6 +5533,9 @@ QToolTip {
      <enum>Qt::NoFocus</enum>
     </property>
     <property name="toolTip">
+     <string/>
+    </property>
+    <property name="whatsThis">
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zoom in or out for Source and Quantized images.&lt;/p&gt;&lt;p&gt;You can also right-click on the images&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="styleSheet">
@@ -5310,6 +5571,66 @@ QToolTip {
      </size>
     </property>
    </widget>
+   <widget class="QPushButton" name="button_whats_this">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>10</y>
+      <width>40</width>
+      <height>40</height>
+     </rect>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
+    </property>
+    <property name="toolTip">
+     <string/>
+    </property>
+    <property name="whatsThis">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You just clicked on it, this is the &amp;quot;What's this&amp;quot; mode.&lt;/p&gt;&lt;p&gt;Use this button to get help about any item by clicking once again on it (the cursor changes when help is available).&lt;/p&gt;&lt;p&gt;Click on an empty area or press &amp;lt;ESC&amp;gt; to leave the &amp;quot;What's this&amp;quot; mode&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                      stop: 0 #FFFFFF, stop: 1 #E0E0E0);
+	border-radius: 10px;
+	border: 2px outset #8f8f91;
+	color rgb(0,0,0);
+}
+QPushButton:checked {
+	border: 2px inset #8f8f91;
+}
+QToolTip {
+    border:2px solid black;
+	padding:5px;
+	background-color:rgb(64,64,64);
+	color:white;
+	font-size: 14px;
+}</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset resource="resources.qrc">
+      <normaloff>:/icons/help.png</normaloff>:/icons/help.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>32</width>
+      <height>32</height>
+     </size>
+    </property>
+    <property name="checkable">
+     <bool>false</bool>
+    </property>
+    <property name="checked">
+     <bool>false</bool>
+    </property>
+   </widget>
    <zorder>scrollArea_image</zorder>
    <zorder>scrollArea_quantized</zorder>
    <zorder>frame_rgb</zorder>
@@ -5330,6 +5651,7 @@ QToolTip {
    <zorder>label_quantized</zorder>
    <zorder>button_save_quantized</zorder>
    <zorder>button_zoom_image</zorder>
+   <zorder>button_whats_this</zorder>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
